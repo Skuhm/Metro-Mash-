@@ -2847,13 +2847,17 @@ function xpScene(s,w,jump){
  const b=sw/box.W;let cx,cy,z;
  let sweep=null;
  if(!sc.focus){cx=box.X0+box.W/2;cy=box.Y0+box.H/2;z=Math.min(1.05,(sh*.97)/(box.H*b));
-  if(sc.sweep&&box.W/box.H>1.3*sw/sh&&!matchMedia("(prefers-reduced-motion: reduce)").matches){z=Math.min(3,(sh*.9)/(box.H*b));const half=sw/2/(z*b);sweep=[box.X0+box.W-half,box.X0+half]}}
+  if(sc.sweep&&box.W/box.H>1.3*sw/sh&&!matchMedia("(prefers-reduced-motion: reduce)").matches){z=Math.min(3,(sh*.9)/(box.H*b));const half=sw/2/(z*b);sweep=[box.X0+box.W-half,box.X0+half]}
+  // a tall board (LA stood upright) in the short window: fill the width and drift from top to bottom instead of shrinking it
+  else if(box.H*b>sh*1.15){z=1;const half=sh/2/b;cy=box.Y0+half;
+   if(!matchMedia("(prefers-reduced-motion: reduce)").matches)sweep={v:1,from:box.Y0+half,to:box.Y0+box.H-half}}}
  else{const P=sc.focus.map(id=>XY(ST[id])),xs=P.map(p=>p.x),ys=P.map(p=>p.y);
   cx=(Math.max(...xs)+Math.min(...xs))/2;cy=(Math.max(...ys)+Math.min(...ys))/2;
   const bw=Math.max(...xs)-Math.min(...xs)+190,bh=Math.max(...ys)-Math.min(...ys)+110;
   z=Math.min(sc.z||2.4,sw/(bw*b),(sh*(s.over?.5:.9))/(bh*b))}
  const fy=s.over?sh*.3:sh/2,tx=sw/2-z*(cx-box.X0)*b,ty=fy-z*(cy-box.Y0)*b;
- if(sweep){const T=x=>`translate(${sw/2-z*(x-box.X0)*b}px,${ty}px) scale(${z})`;cam.style.transition="none";cam.style.transform=T(sweep[0]);void cam.offsetWidth;cam.style.transition="transform 8s cubic-bezier(.45,0,.55,1)";cam.style.transform=T(sweep[1])}
+ if(sweep&&sweep.v){const T=y=>`translate(${sw/2-z*(cx-box.X0)*b}px,${sh/2-z*(y-box.Y0)*b}px) scale(${z})`;cam.style.transition="none";cam.style.transform=T(sweep.from);void cam.offsetWidth;cam.style.transition="transform 14s cubic-bezier(.45,0,.55,1)";cam.style.transform=T(sweep.to)}
+ else if(sweep){const T=x=>`translate(${sw/2-z*(x-box.X0)*b}px,${ty}px) scale(${z})`;cam.style.transition="none";cam.style.transform=T(sweep[0]);void cam.offsetWidth;cam.style.transition="transform 8s cubic-bezier(.45,0,.55,1)";cam.style.transform=T(sweep[1])}
  else{cam.style.transition=jump?"none":"";cam.style.transform=`translate(${tx}px,${ty}px) scale(${z})`;if(jump){void cam.offsetWidth;cam.style.transition=""}}
  const tr=cam.querySelector(".train");
  if(tr&&sc.cur){const p=XY(ST[sc.cur]),v=sc.st[sc.cur],owned=v.o===0||v.o===1,zz=owned?(ST[sc.cur].p===4?22:ST[sc.cur].p===2?14:9):(ST[sc.cur].lock?9:4),to={x:p.x,y:p.y-zz-16};
