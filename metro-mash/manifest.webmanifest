@@ -1,0 +1,16 @@
+{
+  "name": "Metro Mash",
+  "short_name": "Metro Mash",
+  "description": "Race a city's trains in teams, card by card. Claim the stations, duel your rivals.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#141a24",
+  "theme_color": "#141a24",
+  "icons": [
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}
