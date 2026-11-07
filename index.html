@@ -3829,10 +3829,8 @@ function tCreate(){
  const teams=U.teams.slice(0,n).map((t,i)=>({id:"t"+(i+1),name:(t.name||TEAM_NAMES[i]).trim().slice(0,16)||TEAM_NAMES[i],mates:t.m.slice(0,t.pc).map(x=>x.trim().slice(0,24)),col:t.col||T_DEFCOL[i],start:U.start==="spread"?CITY.ends[i%CITY.ends.length]:START_ID}));
  const meta={v:2,rev:1,city:CITY.id,startedAt:now(),stopTs:d.getTime(),start:U.start,teams,host:TM.phone,done:false,first:teams[Math.floor(Math.random()*teams.length)].id};
  TM.code=newCode();TM.relay=relay;TM.meta=meta;TM.teams={};for(const t of teams)TM.teams[t.id]=tFresh(t,meta);TM.my=U.local?meta.first:null;TM.setup=null;
- if(U.local)TM.firstToss=TM.my;
  lsSet(APP_KEY,Object.assign(appState(),{intent:"resume",joinCode:null}));
  tApplyTeamText();tInvalidate();tSave();tConnect();tRender();
- if(TM.firstToss){tFlash("Coin toss",tName(TM.firstToss)+" goes first. Pass the phone when it's the next player's turn: tap their colour at the top.","Take");TM.revealUntil=now()+1e10;TM.firstToss=null;tRenderOv()}
 }
 function tRenderJoin(){
  const J=TM.join,top=$("#top"),m=$("#main");
