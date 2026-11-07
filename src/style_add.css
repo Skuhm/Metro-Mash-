@@ -1,0 +1,203 @@
+/* ---- additions for the multi-city, multi-mode app ---- */
+.mapinner svg.over{position:absolute;left:0;top:0;width:100%;height:100%}
+.mapinner svg.base{pointer-events:none}
+button.tc{background:var(--tc);color:#fff;border-color:var(--tc)}
+/* home */
+.home{display:flex;flex-direction:column;gap:14px;padding:16px max(16px,env(safe-area-inset-right,0px)) 28px max(16px,env(safe-area-inset-left,0px));max-width:760px;margin:0 auto;width:100%}
+.home-hero{display:flex;flex-direction:column;gap:4px;padding-top:6px}
+.home-hero h1{font-size:52px;line-height:.9;font-stretch:125%;font-weight:900;letter-spacing:-.02em}
+.home-hero p{margin:0;color:var(--muted);font-size:16px}
+.citypick{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.citypick button{min-height:56px;font-family:var(--display);font-size:18px;font-weight:900;font-stretch:112%}
+.citypick button[aria-pressed=true]{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+.homethumb{border-radius:18px;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;border:1px solid var(--line);background:var(--land)}
+.homethumb svg.iso{height:auto}
+.ht-hint{margin-top:-6px;text-align:center}
+.mode{display:flex;flex-direction:column;gap:10px;padding:16px;border-radius:20px;background:var(--panel);border:1px solid var(--line)}
+.mode h2{font-size:24px}
+.mode p{margin:0;color:var(--muted);font-size:14.5px;line-height:1.4}
+.mode .row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mode .row.one{grid-template-columns:1fr}
+.resume{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;background:var(--ink);color:var(--panel);border-color:var(--ink);border-radius:18px;padding:14px 16px}
+.resume b{font-family:var(--display);font-size:19px;font-weight:900;font-stretch:110%}
+.resume span{font-size:13px;opacity:.75}
+.homefoot{font-size:12.5px;color:var(--muted);text-align:center;padding-top:4px}
+/* teams: HUD */
+.fp.tm{box-shadow:inset 4px 0 0 var(--tc),0 6px 16px -8px rgba(0,0,0,.6);border-color:var(--tc)}
+.frv{display:inline-flex;align-items:center;gap:5px;min-height:34px;min-width:0;padding:4px 10px;border-radius:999px;font-family:var(--display);font-weight:900;font-size:15px;font-variant-numeric:tabular-nums;background:color-mix(in srgb,var(--panel) 88%,transparent);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border:1.5px solid color-mix(in srgb,var(--tc) 55%,transparent);box-shadow:0 6px 16px -8px rgba(0,0,0,.6)}
+.frv i,.tdot i{width:10px;height:10px;border-radius:3px;background:var(--tc);display:inline-block;transform:skewX(-12deg)}
+.fplates{flex-wrap:wrap}
+i.net{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--muted);vertical-align:1px;margin-right:2px}
+i.net.live{background:var(--ok)}i.net.connecting{background:var(--warn);animation:glow 1s ease-in-out infinite alternate}i.net.offline,i.net.refused{background:var(--bad)}
+.thud{grid-template-columns:1fr auto}
+.pl.tm{border-color:var(--tc)}.pl.tm::before{background:var(--tc)}
+.trow{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.tdot{display:inline-flex;align-items:center;gap:4px;font-family:var(--display);font-weight:900;font-size:14px;font-variant-numeric:tabular-nums}
+#toast .tst b{display:block}
+#toast .tst span{display:block;font-weight:500;font-size:12.5px;opacity:.9;white-space:normal}
+#toast .tst:has(span){border-radius:16px;white-space:normal}
+/* teams: setup, join, pick */
+.stepper{display:flex;align-items:center;gap:12px}
+.stepper b{font-family:var(--display);font-size:20px;font-weight:900;min-width:96px;text-align:center}
+.stepper button{min-width:48px;font-size:22px}
+.tset{display:flex;flex-direction:column;gap:6px;padding:10px 12px;border-radius:14px;background:var(--raise);box-shadow:inset 4px 0 0 var(--tc)}
+.tset input{width:100%}
+.codein{font-family:var(--display);font-size:34px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;text-align:center;padding:12px}
+.invite .code{font-family:var(--display);font-size:44px;font-weight:900;letter-spacing:.16em;text-align:center;line-height:1.1}
+.qr{display:flex;justify-content:center}.qr svg{width:min(240px,70vw);height:auto;background:#fff;border-radius:12px;padding:6px}
+.tpick{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;padding:14px 16px;border-radius:18px;border:2px solid var(--tc);box-shadow:inset 6px 0 0 var(--tc)}
+.tpick b{font-family:var(--display);font-size:20px;font-weight:900;font-stretch:110%}
+.tpick span{font-size:13px;font-weight:500;color:var(--muted)}
+details.card summary{cursor:pointer;padding:2px 0}
+details.card[open] summary{margin-bottom:8px}
+/* teams: curses and count */
+.tchips{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.tchip{min-height:38px;padding:4px 12px;border-radius:999px;font-family:var(--display);font-size:14px;border:2px solid var(--tc)}
+.tchip[aria-pressed=true]{background:var(--tc);color:#fff}
+.board{display:flex;flex-direction:column;gap:8px}
+.brow{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:10px 12px;border-radius:14px;background:var(--raise);box-shadow:inset 5px 0 0 var(--tc)}
+.brow .rk{font-family:var(--display);font-weight:900;font-size:18px;color:var(--muted);width:18px;text-align:center}
+.brow .bn{display:flex;flex-direction:column;min-width:0}
+.brow .bn b{font-family:var(--display);font-weight:900;font-size:17px}
+.brow .bn span{font-size:12.5px;color:var(--muted)}
+.brow .bn .bd{font-size:12px}
+.brow .bt{font-family:var(--display);font-weight:900;font-size:28px;color:var(--tc)}
+.arow{display:flex;flex-direction:column;gap:4px;padding:6px 0;border-bottom:1px solid var(--line)}
+.arow:last-child{border-bottom:0}
+.log .tdot{vertical-align:middle}
+/* teams: show mode scoreboard */
+.show .sbt{display:flex;gap:8px;align-items:stretch;padding:12px max(16px,env(safe-area-inset-left,0px)) 0 max(16px,env(safe-area-inset-right,0px));overflow-x:auto}
+.show .sbteam{flex:1 1 0;min-width:84px;border-radius:14px;padding:8px 10px;background:var(--tc);color:#fff;display:flex;flex-direction:column}
+.show .sbteam .tn{font-family:var(--display);font-weight:800;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.show .sbteam .tp{font-family:var(--display);font-weight:900;font-size:28px;line-height:1}
+.show .sbt .clock{align-self:center;padding:0 6px}
+
+/* the teams status line sits on a soft pill so map labels don't fight it */
+.fclock.tclock{justify-self:start;background:color-mix(in srgb,var(--land) 86%,transparent);padding:3px 10px;border-radius:999px;text-shadow:none;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+/* room for a two-line action bar under the card */
+body.oncard main{padding-bottom:calc(128px + env(safe-area-inset-bottom,0px))}
+/* five rivals still fit on one row */
+.fplates.many .frv{padding:3px 7px;min-height:30px;font-size:13px;gap:4px}
+.fplates.many .frv i{width:8px;height:8px}
+/* landmark art pauses when the map has been left alone for a few seconds */
+.art-still .art *{animation-play-state:paused!important}
+/* auctions: a compact strip every team sees while bidding is open */
+.aucbar{display:flex;flex-direction:column;gap:6px;pointer-events:auto}
+.aucrow{background:var(--panel);border:1.5px solid var(--gold);border-radius:14px;padding:9px 11px;display:flex;flex-direction:column;gap:6px;box-shadow:0 10px 24px -16px rgba(0,0,0,.6)}
+.aucrow .ab-t{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:14px}
+.aucrow .ab-t span{color:var(--muted);font-weight:700;font-size:12.5px;white-space:nowrap}
+.aucrow .ab-h{color:var(--ink);font-weight:600}
+.aucrow .ab-b{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.aucrow .ab-b button{min-height:40px;padding:6px 8px;font-size:15px}
+.stack>.aucbar .aucrow{box-shadow:none}
+/* the trivia duel takes the whole screen while it runs */
+#duel{position:fixed;inset:0;z-index:60;background:var(--ground);color:var(--ink);display:flex;flex-direction:column;gap:12px;padding:calc(env(safe-area-inset-top,0px) + 14px) max(16px,env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 18px) max(16px,env(safe-area-inset-left,0px));overflow:auto}
+#duel[hidden]{display:none!important}
+#duel .dhd{display:flex;justify-content:space-between;gap:10px;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+#duel .dprog{display:flex;justify-content:space-between;font-weight:800;font-size:14px}
+#duel .dbar{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+#duel .dbar i{display:block;height:100%;background:var(--ink);transform-origin:left center;animation-name:dtime;animation-timing-function:linear;animation-fill-mode:forwards}
+@keyframes dtime{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+#duel .dq{font-family:var(--display);font-weight:800;font-size:23px;line-height:1.22;margin:6px 0 4px}
+#duel .dopts{display:grid;gap:10px}
+#duel .dopts button{min-height:60px;text-align:left;font-size:17px;padding:12px 16px;border-radius:14px}
+#duel .dopts button:disabled{opacity:1}
+#duel .dopts button.right,.xw-opts button.right{background:var(--ok);border-color:var(--ok);color:#fff}
+#duel .dopts button.wrong,.xw-opts button.wrong{background:var(--bad);border-color:var(--bad);color:#fff}
+#duel .dnote{font-weight:800;font-size:16px;text-align:center}
+#duel .dbody{display:flex;flex-direction:column;gap:12px;margin-top:auto;margin-bottom:auto}
+#duel .dbody p{margin:0}
+#duel .dscore{font-family:var(--display);font-weight:900;font-size:64px;line-height:1}
+#duel .dscore small{font-size:28px;color:var(--muted)}
+.xw-opts{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.xw-opts button{min-height:34px;padding:5px 9px;font-size:13.5px;text-align:left;border-radius:10px}
+.xw-opts button:disabled{opacity:1}
+.xw-fb{font-weight:800}
+.xw-next{min-height:0;padding:2px 10px;font-size:13px;border-radius:999px;margin-left:4px}
+/* show mode: a board much wider than the screen fills the height and drifts sideways */
+.show .stage.pan{justify-content:flex-start;padding-left:0;padding-right:0}
+.show .stage.pan svg{height:100%!important;width:auto!important;max-width:none!important;flex:0 0 auto;transition:transform .8s cubic-bezier(.4,0,.2,1)}
+.show .stage.pan.drift svg{transition:none;animation:stagedrift var(--pd,50s) ease-in-out infinite alternate}
+@keyframes stagedrift{from{transform:translateX(0)}to{transform:translateX(var(--px,0px))}}
+@media (prefers-reduced-motion: reduce){.show .stage.pan.drift svg{animation:none;transform:translateX(calc(var(--px,0px) / 2))}}
+
+/* picking where you start: the chosen option lights up and the line under it confirms it */
+.stakes button[aria-pressed=true]{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+.stakes button[aria-pressed=true] span{color:var(--panel);opacity:.8}
+.stakes button[aria-pressed=true]::after{content:"✓";position:absolute;top:8px;right:10px;font-weight:900}
+.stakes button{position:relative;transition:background .2s,color .2s,transform .2s}
+.stakes.flash button[aria-pressed=true]{animation:pickpop .35s ease-out}
+@keyframes pickpop{0%{transform:scale(.95)}60%{transform:scale(1.03)}100%{transform:none}}
+.startpick{margin-top:10px;padding:10px 12px;border-radius:12px;background:var(--raise);font-size:13px;line-height:1.5;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.startpick.flash{animation:pickflash .9s ease-out}
+@keyframes pickflash{0%{background:color-mix(in srgb,var(--ok) 40%,var(--raise));transform:translateY(-3px)}100%{background:var(--raise);transform:none}}
+.startpick .sp{background:var(--tc);color:#fff;border-radius:99px;padding:2px 9px;font-weight:700;font-size:12px}
+/* team colour swatches */
+.swatches{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.swatches .sw{width:34px;height:34px;min-width:0;min-height:0;padding:0;border-radius:50%;--c:var(--sw);background:var(--c);border:3px solid var(--raise);box-shadow:0 0 0 1px rgba(0,0,0,.18);transition:transform .15s}
+.swatches .sw[aria-checked=true]{box-shadow:0 0 0 2.5px var(--c);transform:scale(1.12)}
+.swatches .sw[aria-checked=true]::after{content:"✓";color:#fff;font-weight:900;font-size:14px}
+.swatches .sw:disabled{opacity:.22}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .swatches .sw{--c:var(--swd)}}
+:root[data-theme="dark"] .swatches .sw{--c:var(--swd)}
+
+.stakes.decl{flex-wrap:wrap}.stakes.decl button{flex:1 1 44%}
+
+.linkbtn{background:none;border:0;padding:6px 0 0;min-height:0;font-size:13px;color:var(--muted);text-decoration:underline}
+.tdot.sw{border:0;padding:2px 8px;min-height:0;font:inherit;background:var(--raise);border-radius:99px}
+.tdot.sw:active{transform:scale(.95)}
+
+/* fit the visible part of the browser, not the layout viewport: Safari's toolbars otherwise hide the top HUD and the bottom chips */
+html,body{height:100%}
+@supports(height:100dvh){html,body{height:100dvh}}
+body{height:var(--vvh,100dvh)}
+/* room to scroll the last fields above the keyboard */
+input,select,textarea{scroll-margin-top:72px}
+
+/* team selector: everything on one screen */
+.stack.compact{gap:8px;padding-top:8px}
+.tpicks{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tpick{padding:10px 12px;border-radius:14px;min-height:0}
+.tpick b{font-size:17px}
+.tpick span{font-size:12px}
+.tset{gap:4px;padding:8px 10px}
+.tset .lbl{font-size:11px}
+.tset input{min-height:38px;padding:6px 10px}
+.swatches{gap:5px;margin-top:2px}
+.swatches .sw{width:24px;height:24px;border-width:2px}
+.swatches .sw[aria-checked=true]::after{font-size:11px}
+.mates .row.small button{min-height:32px;padding:4px 10px;font-size:12px}
+.stepper{margin:2px 0}
+.stepper button{min-height:38px}
+.startpick{padding:6px 10px;font-size:12px}
+.stakes button{min-height:44px;padding:6px 10px}
+.stakes button span{font-size:11px}
+.card{padding:10px 12px}
+.card h2.d{font-size:18px}
+#top .r h1.d{font-size:24px}
+
+.tset .r{display:flex;align-items:center;gap:8px}
+.card .r{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.card .r .stepper{margin:0}
+.mrow{display:flex;gap:5px}
+.mrow input{flex:1;min-width:0;font-size:13px}
+.mrow .pc{flex:0 0 34px;min-height:38px;padding:0;font-size:16px}
+.swatches .sw{width:22px;height:22px}
+.tset .lbl{display:none}
+.tset input[data-tf=name]{font-weight:700}
+
+.setrow{display:grid;grid-template-columns:1.4fr 1fr;gap:10px;align-items:end}
+.setrow .lbl{margin-bottom:4px}
+.stakes.slim button{min-height:38px;padding:4px 8px;font-size:13px}
+.stakes.slim button::after{display:none}
+.setrow input[type=time]{min-height:38px;padding:4px 8px}
+.startpick{margin-top:0}
+.swatches .sw{width:20px;height:20px}.swatches{gap:4px}
+.swatches{padding:2px 0 0 3px}
+/* iPhones zoom the page into any field whose text is under 16px, which is what dragged the screen around while typing */
+input,select,textarea{font-size:16px!important}
+.mrow input{padding:4px 8px}
+/* three buttons now that Record is gone: Back and Play share the width, the main button gets the rest */
+.xp-nav{grid-template-columns:auto auto 1fr}
+.xp-nav button{white-space:nowrap;min-width:64px}
+.fgo.ask{background:var(--raise);color:var(--ink);box-shadow:none}

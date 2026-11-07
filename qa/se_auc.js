@@ -1,0 +1,11 @@
+const {chromium,phone,act}=require('./h.js');
+(async()=>{const b=await chromium.launch();
+ const H=await phone(b,{mode:"teams",city:"la",intent:"host"},{clock:false,ctx:{viewport:{width:375,height:667}}});
+ await H.pg.evaluate(()=>{const d=document.querySelector('details');if(d)d.open=true});
+ await H.pg.selectOption('#trelay','custom');await H.pg.waitForTimeout(80);await H.pg.fill('#tcustom','ws://127.0.0.1:18883/mqtt');
+ await act(H.pg,'[data-act=t-create]');await H.pg.waitForTimeout(400);await act(H.pg,'[data-act=t-pickteam][data-t=t1]');
+ await H.pg.evaluate(()=>{if(xp)xpClose();const U=TM.teams.t2;U.ev.push({id:"t2.au1",k:"auction",s:"wnormandie",t:Date.now(),end:Date.now()+90000});U.ev.push({id:"t2.b1",k:"bid",ref:"t2.au1",n:3,t:Date.now()});U.rev++;tInvalidate();TM.tab="map";tRender()});
+ await H.pg.waitForTimeout(400);await H.pg.screenshot({path:'qa/se_auc_map.png'});
+ await H.pg.evaluate(()=>{const T=me();T.cur="wvermont";T.hop=null;tCommitQuiet();tAct(()=>tStartHop("wnormandie"));tAct(()=>tFinish("veto"));tAct(()=>tArrive());TM.reveal=null;tRenderOv();TM.tab="cards";tRender()});
+ await H.pg.waitForTimeout(300);await H.pg.screenshot({path:'qa/se_auc_cards.png'});
+ if(H.errs.length)console.log(H.errs);await b.close()})();

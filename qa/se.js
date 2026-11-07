@@ -1,0 +1,12 @@
+const {chromium,phone,act}=require('./h.js');
+(async()=>{const b=await chromium.launch();
+ const H=await phone(b,{mode:"teams",city:"sea",intent:"host"},{clock:false,ctx:{viewport:{width:375,height:667}}});
+ await H.pg.evaluate(()=>{const d=document.querySelector('details');if(d)d.open=true});
+ await H.pg.selectOption('#trelay','custom');await H.pg.waitForTimeout(80);await H.pg.fill('#tcustom','ws://127.0.0.1:18883/mqtt');
+ for(let i=0;i<2;i++)await act(H.pg,'[data-act=t-n][data-d="1"]');
+ await act(H.pg,'[data-act=t-create]');await H.pg.waitForTimeout(400);
+ await act(H.pg,'[data-act=t-pickteam][data-t=t1]');await H.pg.evaluate(()=>{if(xp)xpClose()});
+ await H.pg.evaluate(()=>{const T=me();T.fx.rush=true;T.fx.jury=true;T.hand=[1,2];tCommitQuiet();tRender()});
+ await H.pg.waitForTimeout(500);await H.pg.screenshot({path:'qa/s_se_map.png'});
+ await H.pg.evaluate(()=>{tAct(()=>tStartHop(ADJ[me().cur][0]))});await H.pg.waitForTimeout(300);await H.pg.screenshot({path:'qa/s_se_card.png'});
+ if(H.errs.length)console.log(H.errs);await b.close()})();

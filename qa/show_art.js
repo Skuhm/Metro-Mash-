@@ -1,0 +1,11 @@
+const {chromium,phone,act}=require('./h.js');
+(async()=>{const b=await chromium.launch();
+ const H=await phone(b,{mode:"teams",city:"sea",intent:"host"},{clock:false,ctx:{viewport:{width:820,height:1180}}});
+ await H.pg.evaluate(()=>{const d=document.querySelector('details');if(d)d.open=true});
+ await H.pg.selectOption('#trelay','custom');await H.pg.waitForTimeout(80);await H.pg.fill('#tcustom','ws://127.0.0.1:18883/mqtt');
+ await act(H.pg,'[data-act=t-create]');await H.pg.waitForTimeout(300);
+ await act(H.pg,'[data-act=t-pickteam][data-t=t1]');await H.pg.evaluate(()=>{if(xp)xpClose()});
+ await H.pg.evaluate(()=>{const T=me();["westlake","capitolhill","udistrict"].forEach((s,i)=>{if(ST[s])T.claims.push({id:T.id+".c"+i,s,how:"buy",t:now()-i*1000,n:2})});tCommitQuiet();tOpenShow("live")});
+ await H.pg.waitForTimeout(800);await H.pg.screenshot({path:'qa/show_sea.png'});
+ const r=await H.pg.evaluate(()=>{const svgs=[...document.querySelectorAll('svg.iso')];const ids=svgs.flatMap(s=>[...s.querySelectorAll('linearGradient')].map(g=>g.id));return {svgs:svgs.length,ids:ids.length,unique:new Set(ids).size}});
+ console.log(JSON.stringify(r));if(H.errs.length)console.log(H.errs);await b.close()})();

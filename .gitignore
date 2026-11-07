@@ -1,0 +1,4 @@
+qa/*.png
+qa/broker.log
+node_modules
+dist/

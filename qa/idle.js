@@ -1,0 +1,10 @@
+const {chromium,phone,act}=require('./h.js');
+(async()=>{const b=await chromium.launch();
+ const H=await phone(b,{mode:"teams",city:"la",intent:"host"},{clock:false});
+ await H.pg.evaluate(()=>{const d=document.querySelector('details');if(d)d.open=true});
+ await H.pg.selectOption('#trelay','custom');await H.pg.waitForTimeout(80);await H.pg.fill('#tcustom','ws://127.0.0.1:18883/mqtt');
+ await act(H.pg,'[data-act=t-create]');await H.pg.waitForTimeout(400);await act(H.pg,'[data-act=t-pickteam][data-t=t1]');
+ await H.pg.evaluate(()=>{if(xp)xpClose();AUC_MS=2000;AUC_GRACE=500;const T=me();T.cur="wvermont";T.hop=null;tCommitQuiet();tAct(()=>tStartHop("wnormandie"));tAct(()=>tFinish("veto"));tAct(()=>tArrive())});
+ const r0=await H.pg.evaluate(()=>me().rev);await H.pg.waitForTimeout(4000);const r1=await H.pg.evaluate(()=>me().rev);await H.pg.waitForTimeout(8000);const r2=await H.pg.evaluate(()=>me().rev);
+ console.log("rev",r0,r1,r2,"auction closed:",await H.pg.evaluate(()=>tWorld().auctions.map(a=>a.closed).join()));
+ await b.close()})();

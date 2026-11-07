@@ -1,0 +1,10 @@
+const {chromium,phone,act}=require('./h.js');
+(async()=>{const b=await chromium.launch();
+ const H=await phone(b,{mode:"teams",city:"la",intent:"host"},{clock:false});
+ await H.pg.evaluate(()=>{const d=document.querySelector('details');if(d)d.open=true});
+ await H.pg.selectOption('#trelay','custom');await H.pg.waitForTimeout(80);await H.pg.fill('#tcustom','ws://127.0.0.1:18883/mqtt');
+ await act(H.pg,'[data-act=t-create]');await H.pg.waitForTimeout(300);
+ await act(H.pg,'[data-act=t-pickteam][data-t=t1]');await H.pg.evaluate(()=>{if(xp)xpClose()});
+ await H.pg.waitForTimeout(13000);
+ console.log(await H.pg.evaluate(()=>document.getAnimations().filter(a=>a.playState==="running").map(a=>{const t=a.effect&&a.effect.target;return (a.animationName||a.constructor.name)+" on "+(t?(t.tagName+"."+(t.getAttribute("class")||"")+" in "+(t.closest("svg")?t.closest("svg").getAttribute("class"):"html")):"?")+" dur "+(a.effect&&a.effect.getTiming().duration)}).join("\n")));
+ await b.close()})();

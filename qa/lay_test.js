@@ -1,0 +1,16 @@
+const {chromium,phone,act}=require('./h.js');
+(async()=>{const b=await chromium.launch();let bad=0;const ok=(c,m)=>{if(!c)bad++;console.log((c?"PASS ":"FAIL ")+m)};
+ const H=await phone(b,{mode:"teams",city:"la",intent:"local"},{clock:false});const pg=H.pg;const ev=f=>pg.evaluate(f);
+ await act(pg,'[data-act=t-create]');await pg.waitForTimeout(400);await ev(()=>{if(xp)xpClose()});
+ ok((await ev(()=>CURSES.length))===7&&!(await ev(()=>CURSES.some(c=>c.n==="Second Opinion"))),"Second Opinion is gone, 7 curses");
+ ok(/political take/.test(await ev(()=>CURSES.find(c=>c.k==="jury").eff)),"Jury Duty reworded");
+ ok(!(await pg.$('[data-act=t-szstart]')),"no layover yet");
+ await ev(()=>{TM.meta.startedAt=Date.now()-3*3600000-1000;tRender()});await pg.waitForTimeout(150);
+ ok(!!(await pg.$('[data-act=t-szstart]'))&&!(await pg.$('[data-act=t-szskip]')),"layover due for player 1 after 3 hours, no Skip");
+ await act(pg,'[data-act=t-switch][data-t=t2]');await pg.waitForTimeout(200);ok(!!(await pg.$('[data-act=t-szstart]')),"and due for player 2 at the same time");
+ await act(pg,'[data-act=t-szstart]');await pg.waitForTimeout(150);
+ ok((await pg.$eval('[data-act=t-szend]',e=>e.disabled)),"can't leave the layover early");
+ ok((await ev(()=>Math.round((me().sz.end-me().sz.start)/60000)))===45,"45 minutes");
+ await ev(()=>{me().sz.end=Date.now()-1;tRender()});await pg.waitForTimeout(150);ok(!(await pg.$eval('[data-act=t-szend]',e=>e.disabled)),"back to the game once it's over");
+ await act(pg,'[data-act=t-szend]');await pg.waitForTimeout(150);ok(!(await pg.$('[data-act=t-szstart]'))&&!(await ev(()=>me().sz)),"done, and not due again until the next window");
+ console.log(bad+" failed; errors:",H.errs.slice(0,3));await b.close()})();

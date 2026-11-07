@@ -1,0 +1,15 @@
+const {chromium,phone,act}=require('./h.js');
+(async()=>{const b=await chromium.launch();let bad=0;const ok=(c,m)=>{if(!c)bad++;console.log((c?"PASS ":"FAIL ")+m)};
+ const H=await phone(b,{mode:"teams",city:"la",intent:"local"},{clock:false});const pg=H.pg;
+ await act(pg,'[data-act=t-create]');await pg.waitForTimeout(500);
+ const tut=await pg.evaluate(()=>!!xp);ok(tut,"tutorial opens first");
+ await pg.evaluate(()=>xpClose());await pg.evaluate(()=>tRender());await pg.waitForTimeout(3500);
+ ok(await pg.evaluate(()=>!document.getElementById('ov').hidden&&document.getElementById('ov').textContent.includes('goes first')),"toss card shows after the tutorial and is still there 3.5 s later");
+ ok(await pg.evaluate(()=>TM.my===TM.meta.first),"the tossed player is the one playing");
+ await act(pg,'[data-act=t-closereveal]');await pg.waitForTimeout(200);ok(await pg.evaluate(()=>document.getElementById('ov').hidden),"closes on tap");
+ await pg.evaluate(()=>tRender());await pg.waitForTimeout(200);ok(await pg.evaluate(()=>document.getElementById('ov').hidden),"and doesn't come back");
+ await H.ctx.close();
+ const T=await phone(b,{mode:"teams",city:"la",intent:"host"},{clock:false});await T.pg.evaluate(()=>{const d=document.querySelector('details');if(d)d.open=true});await T.pg.selectOption('#trelay','custom');await T.pg.fill('#tcustom','ws://127.0.0.1:18883/mqtt');
+ await act(T.pg,'[data-act=t-create]');await T.pg.waitForTimeout(300);await act(T.pg,'[data-act=t-pickteam][data-t=t1]');await T.pg.waitForTimeout(500);
+ ok(await T.pg.evaluate(()=>document.getElementById('ov').hidden||!document.getElementById('ov').textContent.includes('Coin toss')),"no coin toss in the Teams game");
+ console.log(bad+" failed");await b.close()})();

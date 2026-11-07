@@ -1,0 +1,2 @@
+const {chromium}=require('playwright');(async()=>{const b=await chromium.launch();const pg=await b.newPage({viewport:{width:390,height:844}});const errs=[];pg.on('pageerror',e=>errs.push(e.message+"\n"+(e.stack||"").split("\n").slice(0,3).join("\n")));pg.on('console',m=>{if(m.type()==='error')errs.push('console: '+m.text())});
+await pg.goto('file://'+process.cwd()+'/dist/turf.html');await pg.waitForTimeout(800);console.log(errs.slice(0,3).join('\n---\n')||'no errors');await b.close()})();

@@ -1,0 +1,11 @@
+const {chromium,phone,act}=require('./h.js');
+(async()=>{const b=await chromium.launch();
+ const P=await phone(b,{mode:"home",city:"la"},{clock:false});await P.pg.waitForTimeout(400);await P.pg.screenshot({path:'qa/lv_home.png'});
+ const H=await phone(b,{mode:"teams",city:"la",intent:"host"},{clock:false});
+ await H.pg.evaluate(()=>{const d=document.querySelector('details');if(d)d.open=true});
+ await H.pg.selectOption('#trelay','custom');await H.pg.waitForTimeout(80);await H.pg.fill('#tcustom','ws://127.0.0.1:18883/mqtt');
+ await act(H.pg,'[data-act=t-create]');await H.pg.waitForTimeout(300);await act(H.pg,'[data-act=t-pickteam][data-t=t1]');
+ await H.pg.evaluate(()=>{if(xp)xpClose();const T=me();["union","metro","wvermont","hvine"].forEach((s,i)=>T.claims.push({id:"t1.x"+i,s,t:Date.now()-5000+i,how:"buy"}));tCommitQuiet();tOpenShow("live")});
+ await H.pg.waitForTimeout(800);await H.pg.screenshot({path:'qa/lv_show.png'});
+ await H.pg.evaluate(()=>tOpenShow("replay"));await H.pg.waitForTimeout(3600);await H.pg.screenshot({path:'qa/lv_replay.png'});
+ if(P.errs.length||H.errs.length)console.log(P.errs,H.errs);await b.close()})();

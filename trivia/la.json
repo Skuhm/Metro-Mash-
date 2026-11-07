@@ -1,0 +1,602 @@
+[
+  {
+    "q": "Which architect designed Walt Disney Concert Hall?",
+    "a": "Frank Gehry",
+    "w": [
+      "Renzo Piano",
+      "Richard Meier",
+      "Zaha Hadid"
+    ],
+    "d": 1,
+    "topic": "landmarks",
+    "src": "https://en.wikipedia.org/wiki/Walt_Disney_Concert_Hall"
+  },
+  {
+    "q": "What did the Hollywood Sign originally spell out?",
+    "a": "Hollywoodland",
+    "w": [
+      "Hollywoodtown",
+      "Hollywood Hills",
+      "Hollywoodville"
+    ],
+    "d": 1,
+    "topic": "landmarks",
+    "src": "https://en.wikipedia.org/wiki/Hollywood_Sign"
+  },
+  {
+    "q": "Which retired space shuttle is housed at the California Science Center?",
+    "a": "Endeavour",
+    "w": [
+      "Discovery",
+      "Atlantis",
+      "Enterprise"
+    ],
+    "d": 1,
+    "topic": "landmarks",
+    "src": "https://abc7.com/post/space-shuttle-endeavour-california-science-center-exposition-park/14369831/"
+  },
+  {
+    "q": "Which Hollywood Blvd theater has stars' handprints set in its forecourt?",
+    "a": "Chinese Theatre",
+    "w": [
+      "Egyptian Theatre",
+      "El Capitan Theatre",
+      "Pantages Theatre"
+    ],
+    "d": 1,
+    "topic": "landmarks",
+    "src": "https://en.wikipedia.org/wiki/Grauman%27s_Chinese_Theatre"
+  },
+  {
+    "q": "Which 1893 building on Broadway appears in the film Blade Runner?",
+    "a": "Bradbury Building",
+    "w": [
+      "Eastern Columbia Building",
+      "Oviatt Building",
+      "Continental Building"
+    ],
+    "d": 2,
+    "topic": "landmarks",
+    "src": "https://www.laconservancy.org/locations/bradbury-building"
+  },
+  {
+    "q": "Which Frank Lloyd Wright house stands in Barnsdall Art Park?",
+    "a": "Hollyhock House",
+    "w": [
+      "Ennis House",
+      "Gamble House",
+      "Schindler House"
+    ],
+    "d": 2,
+    "topic": "landmarks",
+    "src": "https://en.wikipedia.org/wiki/Hollyhock_House"
+  },
+  {
+    "q": "The Academy Museum occupies a former branch of which department store?",
+    "a": "May Company",
+    "w": [
+      "Bullock's",
+      "The Broadway",
+      "J. W. Robinson's"
+    ],
+    "d": 3,
+    "topic": "landmarks",
+    "src": "https://en.wikipedia.org/wiki/Saban_Building"
+  },
+  {
+    "q": "The Wilshire/Normandie station is in which neighborhood?",
+    "a": "Koreatown",
+    "w": [
+      "Thai Town",
+      "Little Armenia",
+      "Little Tokyo"
+    ],
+    "d": 1,
+    "topic": "neighborhoods",
+    "src": "https://lamag.com/lahistory/where-exactly-is-koreatown/"
+  },
+  {
+    "q": "Which LA neighborhood is home to UCLA?",
+    "a": "Westwood",
+    "w": [
+      "Brentwood",
+      "Palms",
+      "Century City"
+    ],
+    "d": 1,
+    "topic": "neighborhoods",
+    "src": "https://en.wikipedia.org/wiki/Westwood,_Los_Angeles"
+  },
+  {
+    "q": "What is Wilshire Blvd between Fairfax and La Brea nicknamed?",
+    "a": "Miracle Mile",
+    "w": [
+      "Golden Mile",
+      "Magnificent Mile",
+      "Million Dollar Mile"
+    ],
+    "d": 1,
+    "topic": "neighborhoods",
+    "src": "https://en.wikipedia.org/wiki/Miracle_Mile,_Los_Angeles"
+  },
+  {
+    "q": "Which community sits on Fairfax Avenue just south of Olympic Blvd?",
+    "a": "Little Ethiopia",
+    "w": [
+      "Little Armenia",
+      "Little Bangladesh",
+      "Historic Filipinotown"
+    ],
+    "d": 2,
+    "topic": "neighborhoods",
+    "src": "https://en.wikipedia.org/wiki/Little_Ethiopia,_Los_Angeles"
+  },
+  {
+    "q": "LA's Thai Town runs along which boulevard?",
+    "a": "Hollywood Boulevard",
+    "w": [
+      "Pico Boulevard",
+      "Olympic Boulevard",
+      "Venice Boulevard"
+    ],
+    "d": 2,
+    "topic": "neighborhoods",
+    "src": "https://en.wikipedia.org/wiki/Thai_Town,_Los_Angeles"
+  },
+  {
+    "q": "Little Tokyo's Nisei Week festival was first held in what year?",
+    "a": "1934",
+    "w": [
+      "1912",
+      "1951",
+      "1968"
+    ],
+    "d": 3,
+    "topic": "neighborhoods",
+    "src": "https://en.wikipedia.org/wiki/Nisei_Week"
+  },
+  {
+    "q": "Before Metro switched to letters, what was the B Line called?",
+    "a": "Red Line",
+    "w": [
+      "Blue Line",
+      "Purple Line",
+      "Gold Line"
+    ],
+    "d": 1,
+    "topic": "transit",
+    "src": "https://en.wikipedia.org/wiki/B_Line_(Los_Angeles_Metro)"
+  },
+  {
+    "q": "What kind of railway is Angels Flight on Bunker Hill?",
+    "a": "Funicular",
+    "w": [
+      "Monorail",
+      "Cog railway",
+      "Maglev"
+    ],
+    "d": 1,
+    "topic": "transit",
+    "src": "https://en.wikipedia.org/wiki/Angels_Flight"
+  },
+  {
+    "q": "Which famous highway's 'End of the Trail' sign stands on Santa Monica Pier?",
+    "a": "Route 66",
+    "w": [
+      "Route 101",
+      "Route 40",
+      "Lincoln Highway"
+    ],
+    "d": 1,
+    "topic": "transit",
+    "src": "https://atlasobscura.com/places/route-66-end-trail"
+  },
+  {
+    "q": "In what year did Expo Line trains first reach Santa Monica?",
+    "a": "2016",
+    "w": [
+      "2008",
+      "2012",
+      "2020"
+    ],
+    "d": 2,
+    "topic": "transit",
+    "src": "https://www.masstransitmag.com/press_release/12174840/metro-expo-2-line-extension-opens-friday-may-20-2016"
+  },
+  {
+    "q": "LA's old 'Red Car' trolleys were run by which company?",
+    "a": "Pacific Electric",
+    "w": [
+      "Los Angeles Railway",
+      "Santa Fe Railway",
+      "Union Pacific"
+    ],
+    "d": 2,
+    "topic": "transit",
+    "src": "https://en.wikipedia.org/wiki/Pacific_Electric"
+  },
+  {
+    "q": "Opened in 1940, which road was the first freeway in the West?",
+    "a": "Arroyo Seco Parkway",
+    "w": [
+      "Hollywood Freeway",
+      "Harbor Freeway",
+      "Santa Monica Freeway"
+    ],
+    "d": 2,
+    "topic": "transit",
+    "src": "https://www.asce.org/about-civil-engineering/history-and-heritage/historic-landmarks/arroyo-seco-parkway"
+  },
+  {
+    "q": "The airfield that grew into LAX was first known as what?",
+    "a": "Mines Field",
+    "w": [
+      "Clover Field",
+      "Vail Field",
+      "Grand Central Airport"
+    ],
+    "d": 3,
+    "topic": "transit",
+    "src": "https://en.wikipedia.org/wiki/History_of_Los_Angeles_International_Airport"
+  },
+  {
+    "q": "LA's street-cart 'danger dogs' are hot dogs wrapped in what?",
+    "a": "Bacon",
+    "w": [
+      "Tortilla",
+      "Pastrami",
+      "Puff pastry"
+    ],
+    "d": 1,
+    "topic": "food",
+    "src": "https://en.wikipedia.org/wiki/Danger_dog"
+  },
+  {
+    "q": "Original Tommy's, founded in 1946, is known for what kind of burger?",
+    "a": "Chili burger",
+    "w": [
+      "Avocado burger",
+      "Teriyaki burger",
+      "Pastrami burger"
+    ],
+    "d": 1,
+    "topic": "food",
+    "src": "https://en.wikipedia.org/wiki/Tommy's"
+  },
+  {
+    "q": "Philippe's and Cole's both claim to have invented which sandwich?",
+    "a": "French dip",
+    "w": [
+      "Reuben",
+      "Monte Cristo",
+      "Club sandwich"
+    ],
+    "d": 2,
+    "topic": "food",
+    "src": "https://en.wikipedia.org/wiki/French_dip"
+  },
+  {
+    "q": "In which city did In-N-Out open its first location in 1948?",
+    "a": "Baldwin Park",
+    "w": [
+      "Pasadena",
+      "Downey",
+      "Glendale"
+    ],
+    "d": 2,
+    "topic": "food",
+    "src": "https://en.wikipedia.org/wiki/In-N-Out_Burger"
+  },
+  {
+    "q": "The Cobb salad is named after the owner of which Hollywood restaurant?",
+    "a": "The Brown Derby",
+    "w": [
+      "Musso & Frank Grill",
+      "Chasen's",
+      "Romanoff's"
+    ],
+    "d": 2,
+    "topic": "food",
+    "src": "https://en.wikipedia.org/wiki/Cobb_salad"
+  },
+  {
+    "q": "Grand Central Market on Broadway opened in what year?",
+    "a": "1917",
+    "w": [
+      "1889",
+      "1938",
+      "1956"
+    ],
+    "d": 3,
+    "topic": "food",
+    "src": "https://www.laconservancy.org/locations/grand-central-market"
+  },
+  {
+    "q": "Where did the Dodgers play before moving to LA in 1958?",
+    "a": "Brooklyn",
+    "w": [
+      "Philadelphia",
+      "Boston",
+      "Cincinnati"
+    ],
+    "d": 1,
+    "topic": "sports",
+    "src": "https://www.mlb.com/dodgers/ballpark/information/history"
+  },
+  {
+    "q": "The fast-breaking 1980s Lakers were nicknamed what?",
+    "a": "Showtime",
+    "w": [
+      "Lob City",
+      "Run TMC",
+      "Bad Boys"
+    ],
+    "d": 1,
+    "topic": "sports",
+    "src": "https://en.wikipedia.org/wiki/Showtime_Lakers"
+  },
+  {
+    "q": "USC's athletic teams are known as the what?",
+    "a": "Trojans",
+    "w": [
+      "Bruins",
+      "Titans",
+      "Spartans"
+    ],
+    "d": 1,
+    "topic": "sports",
+    "src": "https://usctrojans.com/sports/2017/6/16/trads-usc-nickname-html.aspx"
+  },
+  {
+    "q": "Where did the Dodgers play their first four LA seasons, 1958-61?",
+    "a": "LA Memorial Coliseum",
+    "w": [
+      "Rose Bowl",
+      "Wrigley Field",
+      "Gilmore Field"
+    ],
+    "d": 2,
+    "topic": "sports",
+    "src": "https://en.wikipedia.org/wiki/Los_Angeles_Memorial_Coliseum"
+  },
+  {
+    "q": "How many NCAA titles did John Wooden win as UCLA's coach?",
+    "a": "10",
+    "w": [
+      "6",
+      "8",
+      "13"
+    ],
+    "d": 2,
+    "topic": "sports",
+    "src": "https://uclabruins.com/johnwooden"
+  },
+  {
+    "q": "Who lit the Olympic cauldron at the 1984 LA Games?",
+    "a": "Rafer Johnson",
+    "w": [
+      "Carl Lewis",
+      "Edwin Moses",
+      "Greg Louganis"
+    ],
+    "d": 3,
+    "topic": "sports",
+    "src": "https://www.smithsonianmag.com/smithsonian-institution/athlete-rafer-johnson-talks-about-what-its-light-olympic-cauldron-180959944/"
+  },
+  {
+    "q": "Which Oscar-winning musical has scenes at Griffith Observatory and Angels Flight?",
+    "a": "La La Land",
+    "w": [
+      "Whiplash",
+      "A Star Is Born",
+      "The Greatest Showman"
+    ],
+    "d": 1,
+    "topic": "film_tv_music",
+    "src": "https://discoverlosangeles.com/lalaland"
+  },
+  {
+    "q": "Which record label's round tower stands on Vine Street?",
+    "a": "Capitol Records",
+    "w": [
+      "Motown Records",
+      "A&M Records",
+      "Warner Records"
+    ],
+    "d": 1,
+    "topic": "film_tv_music",
+    "src": "https://www.academymuseum.org/en/hollywood-past-and-present/capitol-records-building"
+  },
+  {
+    "q": "Which 1955 James Dean film has key scenes at Griffith Observatory?",
+    "a": "Rebel Without a Cause",
+    "w": [
+      "East of Eden",
+      "Giant",
+      "The Wild One"
+    ],
+    "d": 2,
+    "topic": "film_tv_music",
+    "src": "https://griffithobservatory.lacity.gov/exhibits/exterior-exhibits/rebel-without-a-cause-monument/"
+  },
+  {
+    "q": "LA City Hall played which newspaper's HQ in TV's 'Adventures of Superman'?",
+    "a": "Daily Planet",
+    "w": [
+      "Daily Bugle",
+      "Gotham Gazette",
+      "Daily Sentinel"
+    ],
+    "d": 2,
+    "topic": "film_tv_music",
+    "src": "https://en.wikipedia.org/wiki/Adventures_of_Superman_(TV_series)"
+  },
+  {
+    "q": "The Wizard of Oz (1939) was filmed at which studio in Culver City?",
+    "a": "MGM",
+    "w": [
+      "Paramount",
+      "Warner Bros.",
+      "Universal"
+    ],
+    "d": 2,
+    "topic": "film_tv_music",
+    "src": "https://www.history.com/this-day-in-history/august-25/the-wizard-of-oz-debuts"
+  },
+  {
+    "q": "Who wrote the song 'MacArthur Park,' a hit for Richard Harris?",
+    "a": "Jimmy Webb",
+    "w": [
+      "Burt Bacharach",
+      "Brian Wilson",
+      "Carole King"
+    ],
+    "d": 3,
+    "topic": "film_tv_music",
+    "src": "https://en.wikipedia.org/wiki/MacArthur_Park_(song)"
+  },
+  {
+    "q": "The first Academy Awards, in 1929, were held at which hotel?",
+    "a": "Hollywood Roosevelt Hotel",
+    "w": [
+      "Biltmore Hotel",
+      "Ambassador Hotel",
+      "Beverly Hills Hotel"
+    ],
+    "d": 3,
+    "topic": "film_tv_music",
+    "src": "https://www.academymuseum.org/hollywood-past-and-present/roosevelt-hotel"
+  },
+  {
+    "q": "The La Brea Tar Pits are famous for fossils from which era?",
+    "a": "The Ice Age",
+    "w": [
+      "The Jurassic",
+      "The Cretaceous",
+      "The Triassic"
+    ],
+    "d": 1,
+    "topic": "nature",
+    "src": "https://lacity.gov/news/beneath-los-angeles-lies-50000-year-old-ice-age-time-capsule"
+  },
+  {
+    "q": "What are the hot, dry autumn winds that sweep into LA called?",
+    "a": "Santa Ana winds",
+    "w": [
+      "Diablo winds",
+      "Chinook winds",
+      "Mistral winds"
+    ],
+    "d": 1,
+    "topic": "nature",
+    "src": "https://en.wikipedia.org/wiki/Santa_Ana_winds"
+  },
+  {
+    "q": "What do Angelenos call the gray, overcast skies of early summer?",
+    "a": "June Gloom",
+    "w": [
+      "Summer Smog",
+      "Marine Murk",
+      "Coastal Haze"
+    ],
+    "d": 1,
+    "topic": "nature",
+    "src": "https://en.wikipedia.org/wiki/June_Gloom"
+  },
+  {
+    "q": "Which predator, common at La Brea, is California's state fossil?",
+    "a": "Saber-toothed cat",
+    "w": [
+      "Dire wolf",
+      "Short-faced bear",
+      "American lion"
+    ],
+    "d": 2,
+    "topic": "nature",
+    "src": "https://capitolmuseum.ca.gov/state-symbols/fossil-saber-toothed-cat/"
+  },
+  {
+    "q": "The 405 crosses the Santa Monica Mountains through which pass?",
+    "a": "Sepulveda Pass",
+    "w": [
+      "Cahuenga Pass",
+      "Tejon Pass",
+      "Cajon Pass"
+    ],
+    "d": 2,
+    "topic": "nature",
+    "src": "https://en.wikipedia.org/wiki/Sepulveda_Pass"
+  },
+  {
+    "q": "What is the highest point within LA city limits?",
+    "a": "Mount Lukens",
+    "w": [
+      "Mount Lee",
+      "Mount Hollywood",
+      "Mount Wilson"
+    ],
+    "d": 3,
+    "topic": "nature",
+    "src": "https://en.wikipedia.org/wiki/Mount_Lukens"
+  },
+  {
+    "q": "In what year was Los Angeles founded?",
+    "a": "1781",
+    "w": [
+      "1749",
+      "1802",
+      "1826"
+    ],
+    "d": 2,
+    "topic": "history",
+    "src": "https://en.wikipedia.org/wiki/History_of_Los_Angeles"
+  },
+  {
+    "q": "Pico Blvd honors Pío Pico, Alta California's last governor under which nation?",
+    "a": "Mexico",
+    "w": [
+      "Spain",
+      "United States",
+      "Russia"
+    ],
+    "d": 2,
+    "topic": "history",
+    "src": "https://en.wikipedia.org/wiki/Pico_Boulevard"
+  },
+  {
+    "q": "Who said 'There it is... Take it!' as the LA Aqueduct opened in 1913?",
+    "a": "William Mulholland",
+    "w": [
+      "Henry Huntington",
+      "Harrison Gray Otis",
+      "Harry Chandler"
+    ],
+    "d": 2,
+    "topic": "history",
+    "src": "https://waterandpower.org/museum/Opening_of_LA_Aqueduct.html"
+  },
+  {
+    "q": "Which Spanish governor ordered the founding of Los Angeles?",
+    "a": "Felipe de Neve",
+    "w": [
+      "Gaspar de Portolá",
+      "Junípero Serra",
+      "José Figueroa"
+    ],
+    "d": 3,
+    "topic": "history",
+    "src": "https://en.wikipedia.org/wiki/History_of_Los_Angeles"
+  },
+  {
+    "q": "Hollywood's first permanent film studio opened in 1911 at Sunset and which street?",
+    "a": "Gower Street",
+    "w": [
+      "Vine Street",
+      "Highland Avenue",
+      "Cahuenga Boulevard"
+    ],
+    "d": 3,
+    "topic": "history",
+    "src": "https://en.wikipedia.org/wiki/Nestor_Film_Company"
+  }
+]

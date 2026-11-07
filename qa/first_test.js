@@ -1,0 +1,12 @@
+const {chromium,phone,act}=require('./h.js');
+(async()=>{const b=await chromium.launch();let bad=0;const ok=(c,m)=>{if(!c)bad++;console.log((c?"PASS ":"FAIL ")+m)};
+ const H=await phone(b,{mode:"teams",city:"la",intent:"host"},{clock:false});const pg=H.pg;
+ await pg.evaluate(()=>{const d=document.querySelector('details');if(d)d.open=true});await pg.selectOption('#trelay','custom');await pg.fill('#tcustom','ws://127.0.0.1:18883/mqtt');
+ await act(pg,'[data-act=t-create]');await pg.waitForTimeout(300);await act(pg,'[data-act=t-pickteam][data-t=t1]');await pg.waitForTimeout(300);
+ ok(await pg.evaluate(()=>TM.reveal&&TM.reveal.n==="Coin toss"),"coin toss shown on team pick");
+ await pg.evaluate(()=>{if(xp)xpClose()});await pg.waitForTimeout(200);
+ const chips=await pg.$$eval('.fchip b',a=>a.map(e=>e.textContent));ok(chips.length===2&&/Little Tokyo/.test(chips[0])&&/Civic/.test(chips[1]),"both neighbours offered: "+chips.join(" | "));
+ ok(/Where to first/.test(await pg.$eval('.fnav',e=>e.textContent)),"asked where to go first, nothing presumed");
+ await act(pg,'[data-act=t-pick][data-id=civic]');await pg.waitForTimeout(200);
+ ok(/Doors closing: Civic/.test(await pg.$eval('.fnav',e=>e.textContent)),"picking Civic Center makes it the go button");
+ await pg.screenshot({path:'qa/first.png'});console.log(bad+" failed",H.errs.filter(e=>!/WebSocket/.test(e)));await b.close()})();

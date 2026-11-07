@@ -1,0 +1,10 @@
+const {chromium}=require('playwright');const http=require('http'),fs=require('fs'),path=require('path');const root=path.join(__dirname,'..','site');
+const srv=http.createServer((q,r)=>{const f=path.join(root,'index.html');r.writeHead(200,{'content-type':'text/html'});fs.createReadStream(f).pipe(r)}).listen(18892);
+(async()=>{const b=await chromium.launch();const pg=await b.newPage({viewport:{width:390,height:844}});const errs=[];pg.on('pageerror',e=>errs.push(e.message));
+ await pg.goto('http://127.0.0.1:18892/');await pg.evaluate(()=>localStorage.clear());await pg.reload();
+ await pg.click('[data-act=h-host]');await pg.waitForSelector('[data-act=t-create]');
+ await pg.click('[data-act=t-col][data-i="0"][data-k="lime"]');await pg.click('[data-act=t-create]');await pg.waitForTimeout(500);
+ await pg.click('[data-act=t-pickteam][data-t=t1]');await pg.waitForTimeout(500);
+ console.log(await pg.evaluate(()=>({meta:TM.meta.teams.map(t=>t.name+":"+t.col).join(" "),p1:getComputedStyle(document.documentElement).getPropertyValue('--p1').trim(),hud:getComputedStyle(document.querySelector('[style*="--tc"]')).getPropertyValue('--tc')})));
+ await pg.reload();await pg.waitForTimeout(800);console.log('after reload --p1',await pg.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue('--p1').trim()));
+ await pg.screenshot({path:'qa/col_carry.png'});console.log('errors',errs);await b.close();srv.close()})();

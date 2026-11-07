@@ -1,0 +1,12 @@
+const {chromium,phone,act}=require('./h.js');
+(async()=>{const b=await chromium.launch();
+ const H=await phone(b,{mode:"teams",city:"la",intent:"host"},{clock:false});
+ await H.pg.evaluate(()=>document.querySelector('details').open=true);
+ await H.pg.selectOption('#trelay','custom');await H.pg.waitForTimeout(100);await H.pg.fill('#tcustom','ws://127.0.0.1:18883/mqtt');
+ console.log(await act(H.pg,'[data-act=t-create]'));await H.pg.waitForTimeout(1500);
+ console.log(await H.pg.evaluate(()=>JSON.stringify({net:TM.net,my:TM.my,teams:Object.keys(TM.teams),relay:TM.relay})));
+ console.log(await act(H.pg,'[data-act=t-pickteam][data-t=t1]'));await H.pg.waitForTimeout(300);
+ console.log(await H.pg.evaluate(()=>JSON.stringify({net:TM.net,my:TM.my,teams:Object.keys(TM.teams)})));
+ await H.pg.waitForTimeout(1500);
+ console.log(await H.pg.evaluate(()=>JSON.stringify({net:TM.net,my:TM.my,teams:Object.keys(TM.teams)})));
+ console.log(H.errs);await b.close()})();
