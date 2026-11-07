@@ -308,7 +308,7 @@ function playCurse(p,idx,extra,dIdx){
 function score(){
  const prop=[0,1].map(p=>STATIONS.filter(s=>S.st[s.id].o===p).reduce((a,s)=>a+s.p,0));
  const ch=majorities().t;
- const cr=[0,1].map(p=>Math.floor((S.credits[p]+S.bank[p])/20));
+ const cr=[0,1].map(p=>Math.floor(S.credits[p]/20));
  const stars=[0,0],names=[[],[]];
  if(S.done)for(const [k,lab] of [["cards","Showman"],["tko","Highwayman"],["auc","Auctioneer"],["locks","Lockpick"]]){
   const a=S.stats[k][0],b=S.stats[k][1];

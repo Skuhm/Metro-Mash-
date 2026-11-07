@@ -2323,7 +2323,7 @@ function playCurse(p,idx,extra,dIdx){
 function score(){
  const prop=[0,1].map(p=>STATIONS.filter(s=>S.st[s.id].o===p).reduce((a,s)=>a+s.p,0));
  const ch=majorities().t;
- const cr=[0,1].map(p=>Math.floor((S.credits[p]+S.bank[p])/20));
+ const cr=[0,1].map(p=>Math.floor(S.credits[p]/20));
  const stars=[0,0],names=[[],[]];
  if(S.done)for(const [k,lab] of [["cards","Showman"],["tko","Highwayman"],["auc","Auctioneer"],["locks","Lockpick"]]){
   const a=S.stats[k][0],b=S.stats[k][1];
@@ -3063,7 +3063,7 @@ function tFresh(t,meta){
  return {id:t.id,rev:1,at:now(),by:TM.phone,mate:Math.random()<.5?0:1,cur:t.start,hop:null,stops:0,boards:0,open:null,park:null,
   pile:shuffle(TEAM_DECK()),cpile:shuffle(CURSES.flatMap((c,i)=>[i,i])),hand:[],fx:tBlankFx(),bank:START,credits:0,
   stats:{cards:0,tko:0,locks:0},vis:{[t.start]:1},claims:[],ev:[],seen:{},layLast:meta.startedAt,sz:null,duel:null,coolS:null,
-  log:[{t:now(),x:"Start at "+ST[t.start].n+". "+START+" chips."}]};
+  log:[{t:now(),x:"Start at "+ST[t.start].n+". "+START+" monies."}]};
 }
 
 // ---------- the shared world, derived from every team's events ----------
@@ -3173,7 +3173,7 @@ function tStartHop(to){
  T.boards++;
  T.hop={to,from:T.cur,at:now(),arrived:false,settled:false,first:null,card:null,lock:false};
  tLog(ST[T.cur].n+" to "+ST[to].n+".");
- if(tSealed(to)){T.hop.lock=true;tLog(ST[to].n+" is sealed. The challenge opens on the platform; the card is for chips.")}
+ if(tSealed(to)){T.hop.lock=true;tLog(ST[to].n+" is sealed. The challenge opens on the platform; the card is for monies.")}
  if(T.open){T.hop.card="cont";tLog("Still on "+spec(T.open).n+". No new card until it settles.")}
  else tDrawCard();
  if(T.open&&!T.open.lock&&T.open.started&&CARD[T.open.id].tally&&CARD[T.open.id].tally.perBoard)T.open.canStep=true;
@@ -3294,7 +3294,7 @@ function tStopHint(win){
  if(win){if(h.road)return " Roadblock: the station goes to auction instead.";if(h.cool)return " Cooling off: no buying or challenging at this stop.";return ow?" You can challenge "+tName(ow)+" for the station.":" You can buy the station."}
  return ow?" No challenge this visit.":" The station goes to auction.";
 }
-function tBankrunTick(win){const T=me(),b=T.fx.bankrun;if(!b)return;if(win)b.done++;b.left--;if(b.left<=0||b.done>=b.declared){const ok=b.done>=b.declared,d=ok?10*b.done:-10;T.bank=Math.max(0,T.bank+d);if(d>0)T.credits+=d;tLog("Bank Run: "+b.done+" of "+b.declared+". "+(d>0?"+":"")+d+" chips.");T.fx.bankrun=null}}
+function tBankrunTick(win){const T=me(),b=T.fx.bankrun;if(!b)return;if(win)b.done++;b.left--;if(b.left<=0||b.done>=b.declared){const ok=b.done>=b.declared,d=ok?10*b.done:-10;T.bank=Math.max(0,T.bank+d);if(d>0)T.credits+=d;tLog("Bank Run: "+b.done+" of "+b.declared+". "+(d>0?"+":"")+d+" monies.");T.fx.bankrun=null}}
 function tDrawCurse(why){const T=me();if(!T.cpile.length)T.cpile=shuffle(CURSES.flatMap((c,i)=>[i,i]));const c=T.cpile.pop();
  // four in hand is the most: a fifth pushes out the oldest
  if(T.hand.length>=4){const o=T.hand.shift();tLog("Four curses is the most you can hold. "+CURSES[o].n+", your oldest, is discarded.")}
@@ -3307,7 +3307,7 @@ function tFinish(out,note){
  T.open=null;
  if(o.lock){const id=o.id;
   if(T.park){T.open=T.park;T.park=null;tLog(spec(T.open).n+" resumes.")}
-  if(out==="win"){tClaim(id,"lock");T.bank+=o.pay;T.credits+=o.pay;T.stats.locks++;T.stats.cards++;tLog("You win "+ST[id].n+": "+sp.n+(note?" ("+note+")":"")+". +"+o.pay+".");if(T.hop&&T.hop.to===id)T.hop.settled=true;tFlash("Unlocked","You take "+ST[id].n+" and "+o.pay+" chips.","Locked")}
+  if(out==="win"){tClaim(id,"lock");T.bank+=o.pay;T.credits+=o.pay;T.stats.locks++;T.stats.cards++;tLog("You win "+ST[id].n+": "+sp.n+(note?" ("+note+")":"")+". +"+o.pay+".");if(T.hop&&T.hop.to===id)T.hop.settled=true;tFlash("Unlocked","You take "+ST[id].n+" and "+o.pay+" monies.","Locked")}
   else{tEv({k:"lockfail",s:id});tLog("You fail "+sp.n+(note?" ("+note+")":"")+". "+ST[id].n+" stays sealed; another team's attempt pays double.");if(T.hop&&T.hop.to===id)T.hop.settled=true;tFlash("Still sealed","Another team's attempt here pays double.","Locked")}
   return}
  const c=CARD[o.id],W=tWorld();
@@ -3325,17 +3325,17 @@ function tFinish(out,note){
   tLog("You complete "+c.n+(gain?": +"+gain:"")+(note?" ("+note+")":"")+".");
   if(o.road&&T.hop)T.hop.road=true;
   tBankrunTick(true);tSetFirst(o.road?"blocked":"win");
-  tFlash("Complete",(gain?"+"+gain+" chips.":"You complete "+c.n+".")+tStopHint(true),"Take");
+  tFlash("Complete",(gain?"+"+gain+" monies.":"You complete "+c.n+".")+tStopHint(true),"Take");
   return}
  if(out==="veto"){tLog("You veto "+c.n+"."+tStopHint(false));tSetFirst("fail");return}
  if(c.fam==="Gambit"){
   if(c.id==="G0"||c.id==="G3"){const b=T.bank;T.bank=Math.floor(b/2);tLog("You miss "+c.n+(note?" ("+note+")":"")+": bank "+b+" → "+T.bank+".")}
-  else if(c.id==="G1"){const n=Math.floor(T.bank*.3);T.bank-=n;tLog("Pickpocket missed: you lose "+n+" chips.")}
+  else if(c.id==="G1"){const n=Math.floor(T.bank*.3);T.bank-=n;tLog("Pickpocket missed: you lose "+n+" monies.")}
   else tLog("You fail "+c.n+(note?" ("+note+")":"")+".");
- }else{const n=Math.min(cardLoss(c,o),T.bank);T.bank-=n;o.lost=n;tLog("You fail "+c.n+(note?" ("+note+")":"")+(n?". You lose "+n+" chips.":"."))}
+ }else{const n=Math.min(cardLoss(c,o),T.bank);T.bank-=n;o.lost=n;tLog("You fail "+c.n+(note?" ("+note+")":"")+(n?". You lose "+n+" monies.":"."))}
  tBankrunTick(false);tSetFirst("fail");
  tDrawCurse("You failed "+c.n);
- tFlash("Fail",(o.lost?"−"+o.lost+" chips.":"Missed.")+(T.hop&&!T.hop.lock&&!T.hop.settled?" "+tStopHint(false).trim():""),"Stunt");
+ tFlash("Fail",(o.lost?"−"+o.lost+" monies.":"Missed.")+(T.hop&&!T.hop.lock&&!T.hop.settled?" "+tStopHint(false).trim():""),"Stunt");
 }
 function tSettle(v,note){tFinish(v,note)}
 
@@ -3343,7 +3343,7 @@ function tSettle(v,note){tFinish(v,note)}
 function tPlayCurse(idx,target,extra){
  const T=me(),ci=T.hand[idx],c=CURSES[ci];if(c==null)return "That curse is gone.";
  if(T.hand.length>3)return "Four in hand: discard one first.";
- if(T.bank<c.chips)return "You need "+c.chips+" chips.";
+ if(T.bank<c.chips)return "You need "+c.chips+" monies.";
  const W=tWorld();
  if(c.k==="gilded"){if(!extra||W.own[extra]!==T.id)return "Pick a station you own.";if(W.gild[extra])return "It's already gilded."}
  else if(!target||target===T.id||!TM.teams[target])return "Pick a team.";
@@ -3372,7 +3372,7 @@ function tProcessIncoming(){
  tInvalidate();const W=tWorld();
  // auctions: the winning team's phone pays once the bidding has closed
  for(const A of W.auctions){if(!A.closed||T.seen["ac:"+A.id])continue;T.seen["ac:"+A.id]=1;ch=true;
-  if(A.high&&A.high.team===T.id){const due=A.high.n*(T.fx.fare?2:1),paid=Math.min(due,T.bank);T.bank-=paid;if(T.fx.fare){T.fx.fare=false;tLog("Double Fare on the auction.")}tLog("You win "+ST[A.s].n+" at auction for "+paid+".");tToast("You win "+ST[A.s].n,"Auction, "+paid+" chips.")}
+  if(A.high&&A.high.team===T.id){const due=A.high.n*(T.fx.fare?2:1),paid=Math.min(due,T.bank);T.bank-=paid;if(T.fx.fare){T.fx.fare=false;tLog("Double Fare on the auction.")}tLog("You win "+ST[A.s].n+" at auction for "+paid+".");tToast("You win "+ST[A.s].n,"Auction, "+paid+" monies.")}
   else if(A.by===T.id||A.bids.some(b=>b.team===T.id))tLog(A.high?tName(A.high.team)+" wins "+ST[A.s].n+" at auction for "+A.high.n+".":"No bids for "+ST[A.s].n+". It stays open.")}
  // trivia duels: a challenge lands, and later the result
  for(const D of W.duels){
@@ -3511,7 +3511,7 @@ function tScore(){
  for(const s of STATIONS){const o=W.own[s.id];if(o&&R[o])R[o].prop+=s.p}
  const rows=[];
  for(const m of MAJ){const cnt=Object.fromEntries(ids.map(id=>[id,m.ids.filter(x=>W.own[x]===id).length])),mx=Math.max(0,...Object.values(cnt)),win=mx>0?ids.filter(id=>cnt[id]===mx):[];for(const id of win)R[id].maj+=m.pts/win.length;rows.push({m,cnt,win})}
- for(const id of ids){const T=TM.teams[id];if(T)R[id].cr=Math.floor((T.credits+T.bank)/20)}
+ for(const id of ids){const T=TM.teams[id];if(T)R[id].cr=Math.floor(T.credits/20)}
  // bonus stars are only worked out at the final count: nobody sees who's leading for them while the game is on
  if(tLocked())for(const [k,lab] of [["cards","Showman"],["tko","Highwayman"],["locks","Lockpick"],["vis","Explorer"]]){
   const v=Object.fromEntries(ids.map(id=>{const T=TM.teams[id];return [id,!T?0:k==="vis"?Object.keys(T.vis).length:k==="tko"?W.takes[id]||0:T.stats[k]||0]})),mx=Math.max(0,...Object.values(v));if(mx<=0)continue;
