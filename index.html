@@ -592,6 +592,7 @@ input,select,textarea{font-size:16px!important}
 /* three buttons now that Record is gone: Back and Play share the width, the main button gets the rest */
 .xp-nav{grid-template-columns:auto auto 1fr}
 .xp-nav button{white-space:nowrap;min-width:64px}
+.fgo.ask{background:var(--raise);color:var(--ink);box-shadow:none}
 
 </style>
 </head>
@@ -2417,7 +2418,7 @@ function navHTML(info){
    if(S.boards>0)sides=S.hij==null?side(`data-act="hijack" ${S.bank[u]>=HIJACK?"":"disabled"}`,"Hijack",HIJACK+" monies"):side('data-act="unhijack"',"Undo","hijack");
    const others=ADJ[S.cur].filter(x=>x!==cand);
    chips=others.map(id=>`<button class="fchip${S.st[id].vis?"":" new"}" data-act="pick" data-id="${id}"><b>${esc(ST[id].n)}</b><span>${esc(viaTxt(S.cur,id))}</span></button>`).join("");
-   if(rec!==cand&&unvisited().length)chips=`<button class="fchip hint" data-act="pick" data-id="${rec}"><b>Nearest new stop</b><span>${esc(ST[rec].n)}</span></button>`+monies;
+   if(rec!==cand&&unvisited().length)chips=`<button class="fchip hint" data-act="pick" data-id="${rec}"><b>Nearest new stop</b><span>${esc(ST[rec].n)}</span></button>`+chips;
   }
  }
  return `<div class="fbottom">${info||""}${showKey?legendHTML():""}${chips?`<div class="fchips">${chips}</div>`:""}<div class="fnav sheet">${main}${sides}</div></div>`;
@@ -3567,12 +3568,16 @@ function tNav(info){
  else if(tLayHere()){main=go('data-act="t-szstart"',"Start the layover",`Every team eats now. Riders from your last train pick the place, ${LAY_MIN} minutes`)}
  else if(T.fx.wrong){const to=T.fx.wrong.to;main=go(`data-act="t-hop" data-id="${to}"`,"Doors closing: "+esc(ST[to].n),`${esc(tName(T.fx.wrong.by))} picked it with Wrong Platform · ${esc(viaTxt(T.cur,to))}`)}
  else{
-  const rec=tNextRec(),cand=(TM.sel&&ADJ[T.cur].includes(TM.sel))?TM.sel:rec,W=tWorld(),ow=W.own[cand];
+  const rec=tNextRec(),picked=TM.sel&&ADJ[T.cur].includes(TM.sel),W=tWorld();
+  if(T.boards===0&&!picked){main=`<div class="fgo ask"><b>Where to first?</b><span>Pick a station next door</span></div>`;
+   chips=ADJ[T.cur].map(id=>`<button class="fchip" data-act="t-pick" data-id="${id}"><b>${esc(ST[id].n)}</b><span>${esc(viaTxt(T.cur,id))}${tSealed(id)?" · sealed":""}</span></button>`).join("");
+   return `<div class="fbottom">${info||""}${showKey?legendHTML():""}${tAucBar()}<div class="fchips">${chips}</div><div class="fnav sheet">${main}</div></div>`}
+  const cand=picked?TM.sel:rec,ow=W.own[cand];
   const bits=[viaTxt(T.cur,cand)];if(tSealed(cand))bits.push("sealed");else if(ow)bits.push(ow===T.id?"yours":esc(tName(ow))+"'s");
   if(T.open)bits.push(esc(spec(T.open).n)+" carries on");
   main=go(`data-act="t-hop" data-id="${cand}"`,"Doors closing: "+esc(ST[cand].n),bits.join(", "));
   chips=ADJ[T.cur].filter(x=>x!==cand).map(id=>`<button class="fchip" data-act="t-pick" data-id="${id}"><b>${esc(ST[id].n)}</b><span>${esc(viaTxt(T.cur,id))}</span></button>`).join("");
-  if(rec!==cand&&tUnvisited().length)chips=`<button class="fchip hint" data-act="t-pick" data-id="${rec}"><b>Nearest new stop</b><span>${esc(ST[rec].n)}</span></button>`+monies;
+  if(rec!==cand&&tUnvisited().length)chips=`<button class="fchip hint" data-act="t-pick" data-id="${rec}"><b>Nearest new stop</b><span>${esc(ST[rec].n)}</span></button>`+chips;
  }
  return `<div class="fbottom">${info||""}${showKey?legendHTML():""}${tAucBar()}${chips?`<div class="fchips">${chips}</div>`:""}<div class="fnav sheet">${main}${sides}</div></div>`;
 }
@@ -3820,8 +3825,8 @@ function tCreate(){
  const relay=U.local?"local":U.relay==="custom"?(U.custom||"").trim():U.relay;
  if(!U.local&&U.relay==="custom"&&!/^wss?:\/\//.test(relay)){tFlash("Relay address","A custom relay starts with wss://","Curse");tRenderOv();return}
  const teams=U.teams.slice(0,n).map((t,i)=>({id:"t"+(i+1),name:(t.name||TEAM_NAMES[i]).trim().slice(0,16)||TEAM_NAMES[i],mates:t.m.slice(0,t.pc).map(x=>x.trim().slice(0,24)),col:t.col||T_DEFCOL[i],start:U.start==="spread"?CITY.ends[i%CITY.ends.length]:START_ID}));
- const meta={v:2,rev:1,city:CITY.id,startedAt:now(),stopTs:d.getTime(),start:U.start,teams,host:TM.phone,done:false};
- TM.code=newCode();TM.relay=relay;TM.meta=meta;TM.teams={};for(const t of teams)TM.teams[t.id]=tFresh(t,meta);TM.my=U.local?teams[Math.floor(Math.random()*teams.length)].id:null;TM.setup=null;
+ const meta={v:2,rev:1,city:CITY.id,startedAt:now(),stopTs:d.getTime(),start:U.start,teams,host:TM.phone,done:false,first:teams[Math.floor(Math.random()*teams.length)].id};
+ TM.code=newCode();TM.relay=relay;TM.meta=meta;TM.teams={};for(const t of teams)TM.teams[t.id]=tFresh(t,meta);TM.my=U.local?meta.first:null;TM.setup=null;
  if(U.local)TM.firstToss=TM.my;
  lsSet(APP_KEY,Object.assign(appState(),{intent:"resume",joinCode:null}));
  tApplyTeamText();tInvalidate();tSave();tConnect();tRender();
@@ -3974,7 +3979,7 @@ document.addEventListener("click",e=>{
   case"t-create":tCreate();return;
   case"t-switch":{if(!TM.teams[D.t]||D.t===TM.my)return;TM.my=D.t;TM.tab="map";TM.sel=null;tSave();tRender();tFlash("Pass the phone",tName(D.t)+" is playing now.","Take");return}
   case"t-joingo":tJoinGo();return;
-  case"t-pickteam":{if(!TM.teams[D.t])return;TM.my=D.t;TM.tab="map";TM.join=null;tSave();if(tProcessIncoming())tCommitQuiet();tPublish();tRender();if(!lsGet("turf.teams.seenhelp")){lsSet("turf.teams.seenhelp",1);xpOpen("help")}return}
+  case"t-pickteam":{if(!TM.teams[D.t])return;TM.my=D.t;TM.tab="map";TM.join=null;tSave();if(TM.meta.first)tFlash("Coin toss",tName(TM.meta.first)+(TM.meta.first===D.t?" (you) lead off.":" lead off.")+" Every team moves at once, so get going.","Take");if(tProcessIncoming())tCommitQuiet();tPublish();tRender();if(!lsGet("turf.teams.seenhelp")){lsSet("turf.teams.seenhelp",1);xpOpen("help")}return}
   case"t-copylink":{const l=tInviteLink();try{navigator.clipboard.writeText(l).then(()=>{tFlash("Copied","The invite link is on your clipboard.","Take");tRenderOv()},()=>{tFlash("Invite link",l,"Take");tRenderOv()})}catch(err){tFlash("Invite link",l,"Take");tRenderOv()}return}
   case"t-qr":tShowQR();return;
   case"t-howto":xpOpen("help");return;
