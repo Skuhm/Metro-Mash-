@@ -533,6 +533,12 @@ body.oncard main{padding-bottom:calc(128px + env(safe-area-inset-bottom,0px))}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .swatches .sw{--c:var(--swd)}}
 :root[data-theme="dark"] .swatches .sw{--c:var(--swd)}
 
+.stakes.decl{flex-wrap:wrap}.stakes.decl button{flex:1 1 44%}
+
+.linkbtn{background:none;border:0;padding:6px 0 0;min-height:0;font-size:13px;color:var(--muted);text-decoration:underline}
+.tdot.sw{border:0;padding:2px 8px;min-height:0;font:inherit;background:var(--raise);border-radius:99px}
+.tdot.sw:active{transform:scale(.95)}
+
 </style>
 </head>
 <body>
@@ -588,53 +594,49 @@ function loadCity(id){
 }
 
 // ================= deck =================
-// Every card: a shot, a camera-judgeable number, a fail state, the Up player does it, a city placeholder, a limit.
+// Every card: a shot, a number the team can judge, a fail state, a city placeholder, a limit. Complete it: its monies, and the station is yours to buy. Fail it: lose half its monies, the station goes to auction, and you draw a curse.
 // ride: done on the vehicle during the hop (no clock cost). span: may run over several hops. Others: done on the platform.
 const CARDS=[
- {id:"T0",fam:"Take",n:"Four Agrees In A Row",w:"This ride",d:"Say one take of your own to riders one at a time. Each says agree or disagree on camera. A disagree resets you to zero.",c:"The fourth agree in a row before the doors open.",t:"Unlimited riders. This hop.",r:10,ride:1,vetoAny:1,tally:{target:4,label:"Agree",reset:"Disagree"}},
- {id:"T1",fam:"Take",n:"Three Rulings",w:"This ride",d:"Give one rider at a time your 30-second take, quietly, just to them. Each rules agree or disagree.",c:"Three rulings before the doors open, at least one of them agree.",t:"One take for all three.",r:10,ride:1,tally:{target:3,label:"Ruling"},need:"At least one agree"},
- {id:"T2",fam:"Take",n:"Filibuster",w:"Train or platform",d:"Record a take from a stranger, then argue the opposite for 90 seconds straight. The stranger watches the stopwatch; Camera stops it at any pause over three seconds.",c:"The stopwatch reaches 90.",t:"Two attempts.",r:10,watch:90,strikes:{max:2,label:"Paused"}},
- {id:"T3",fam:"Take",n:"Chain Of Custody",w:"Three rides",d:"Record a take on this ride. On your next ride a rider rules on it and adds one sentence. On the ride after that a rider rules on the amended take.",c:"Third step on camera, each step on a different ride.",t:"Your next three rides.",r:15,span:1,tally:{target:3,label:"Step",perBoard:1}},
- {id:"T4",fam:"Take",n:"Call Your Takes",w:"This ride",d:"Declare how many takes you will record before the doors open. Minimum two.",c:"The declared number is met. 2 pays 6, 3 pays 11, 4 pays 17, 5 pays 24.",t:"This hop.",r:"6–24",ride:1,declare:[2,3,4,5],cyt:1,tally:{label:"Take"}},
- {id:"T5",fam:"Take",n:"Lightning Round",w:"Train or platform",d:"Three different strangers, one take each, and each gives one reason for it.",c:"The third take and reason recorded before the timer hits zero.",t:"5 minutes.",r:10,timer:300,tally:{target:3,label:"Take"}},
- {id:"T6",fam:"Take",n:"Two Sides",w:"This ride",d:"Put one take of yours to riders one at a time until one agrees and one disagrees.",c:"One agree and one disagree with the same take, on camera, before the doors open.",t:"This hop.",r:8,ride:1},
- {id:"S0",fam:"Stunt",n:"Prove Me Wrong",w:"The platform",d:"Get cardboard and a marker first: ask a shop for a box, or buy them. Write a take on it, hold it up at the station, and defend it to anyone who stops.",c:"Three strangers argue with you on camera for 30 seconds or more each, at least one of them against.",t:"25 minutes, sign-making included.",r:12,timer:1500,tally:{target:3,label:"Argument"},need:"At least one argued against"},
- {id:"S1",fam:"Stunt",n:"Directions Only",w:"The station",d:"The app names a landmark near this station. Phone sealed away. Ask one stranger how many minutes the walk is; that is your time limit. Get there asking bystanders for directions only.",c:"You are touching the landmark before the timer hits zero.",t:"One attempt.",r:12,dirs:1},
- {id:"S3",fam:"Stunt",n:"The Line From Memory",w:"This ride",d:"Study the car map for 60 seconds, then recite every stop from here to the end of the line, up to twelve, in order with the map covered.",c:"Every one in order, no help.",t:"One retry.",r:10,ride:1,study:60,strikes:{max:2,label:"Wrong"}},
- {id:"S5",fam:"Stunt",n:"Hometown Advantage",w:"This ride",d:"Find a rider who has lived in LA longer than the two of you combined. They give you one take on how the city has changed. You argue the opposite for 30 seconds.",c:"They rule on your argument, on camera, before the doors open.",t:"One rider.",r:10,ride:1},
- {id:"S6",fam:"Stunt",n:"Scavenger",w:"Train or platform",d:"Photograph all five on the list.",c:"Fifth photo taken.",t:"20 minutes.",r:12,timer:1200,list:["A Dodgers cap","A taco truck","A fruit cart with mango on a stick","Someone on a rental scooter","Someone asleep"]},
- {id:"S7",fam:"Stunt",n:"Sell Me The Neighborhood",w:"This ride",d:"Ask a rider to sell you on the neighborhood you are riding into, in 30 seconds, and name one place you have to go there.",c:"The pitch and a named place, on camera, before the doors open.",t:"Up to two riders.",r:8,ride:1,strikes:{max:2,label:"Declined"}},
- {id:"S8",fam:"Stunt",n:"Train Pong",w:"This ride",d:"Set an empty cup on the floor or a seat across from you and throw a coin into it.",c:"Three in the cup before the doors open.",t:"Ten throws.",r:10,ride:1,throws:{max:10,target:3}},
- {id:"S9",fam:"Stunt",n:"Transfer Sprint",w:"The station",d:"Start as the doors open. Get off, exit to street level, touch the station's street sign, and get back down to the platform.",c:"On the platform before the timer hits zero.",t:"Two and a half minutes.",r:8,timer:150},
+ // Takes: opinions, yours and strangers', and getting people to rule on them
+ {id:"T0",fam:"Take",n:"Four Agrees In A Row",w:"This ride",d:"Get four people to agree with your hot take, in a row. If one disagrees you reset to zero. Complete it before your next stop.",c:"The fourth agree in a row before the doors open.",t:"This hop. Unlimited riders.",r:10,ride:1,vetoAny:1,tally:{target:4,label:"Agree",reset:"Disagree"}},
+ {id:"T1",fam:"Take",n:"Three Rulings",w:"This ride",d:"Come up with the craziest take you actually believe and tell three people. It has to be genuinely shocking or controversial.",c:"Three people hear it and rule on it, agree or disagree, before the doors open.",t:"One take for all three.",r:10,ride:1,tally:{target:3,label:"Ruling"}},
+ {id:"T2",fam:"Take",n:"Filibuster",w:"Train or platform",d:"Find a stranger and ask for their most controversial opinion (it has to be genuinely controversial). Argue against it for the next 90 seconds, whatever you actually think of it.",c:"The stopwatch reaches 90. Any pause over three seconds stops it.",t:"Two attempts.",r:10,watch:90,strikes:{max:2,label:"Paused"}},
+ {id:"T3",fam:"Take",n:"Chain Of Custody",w:"Three rides",d:"Ask a stranger for their hot take and add on to what they're saying. Share this dual take with a new stranger at each of your next two stops, adding to the take's explanation each time.",c:"Three strangers over three rides, the take growing each time, on camera.",t:"Your next three rides.",r:15,span:1,tally:{target:3,label:"Step",perBoard:1}},
+ {id:"T4",fam:"Take",n:"Call Your Takes",w:"This ride",d:"Earn more by collecting more takes, but declare how many you'll get before you start. Fall short and you lose as many stars as you were going for.",c:"The declared number of takes before the doors open.",t:"This hop.",r:"6–24",rtxt:"2 takes +6 · 3 takes +11 · 4 takes +17 · 5 takes +24. Miss, and you lose the same number",ride:1,declare:[2,3,4,5],cyt:1,tally:{label:"Take"}},
+ {id:"T5",fam:"Take",n:"Lightning Round",w:"Train or platform",d:"Find a group of strangers and get a hot take from each of them. Then argue against all of their takes in one combined response, under 30 seconds.",c:"Three or more takes, then one response under 30 seconds that answers every one of them, on camera.",t:"5 minutes.",r:10,timer:300,tally:{target:3,label:"Take"}},
+ {id:"T6",fam:"Take",n:"Two Sides",w:"This ride",d:"Find a couple or a small group of strangers and get them to give you opposing takes. Agree with one of them, and tell the other why their take was so wrong.",c:"Two opposing takes and your verdict, on camera, before the doors open.",t:"This hop.",r:8,ride:1},
+ {id:"S0",fam:"Take",n:"Prove Me Wrong",w:"The platform",d:"Get materials and make a sign with a HEINOUS take on it. Stand somewhere with heavy foot traffic and defend it to anyone who walks by, until you've collected three takes on it.",c:"Three strangers give you their take on your sign, on camera.",t:"25 minutes, sign-making included.",r:12,timer:1500,tally:{target:3,label:"Take"}},
+ {id:"S5",fam:"Take",n:"Hometown Advantage",w:"This ride",d:"Find a stranger who has lived here for more than three years and ask for a take on how the city has changed. Argue against it, then ask if they agree with you. If they don't, ask them why you're wrong.",c:"Their take, your argument and their verdict, on camera, before the doors open.",t:"One stranger.",r:10,ride:1},
+ {id:"S7",fam:"Take",n:"Sell Me The City",w:"This ride",d:"Ask a rider to explain why this city is the best in the country (or in the state, if they're struggling). Then disagree, and make the case that a different city is better.",c:"Their pitch and your rebuttal, on camera, before the doors open.",t:"Up to two riders.",r:8,ride:1,strikes:{max:2,label:"Declined"}},
+ // Stunts: things you do with strangers and the city
+ {id:"S1",fam:"Stunt",n:"Directions Only",w:"The station",d:"A landmark has been chosen for you. Find a stranger and ask how long it takes to get there: that is your time limit. No phone for directions, only other strangers.",c:"You are touching the landmark before the timer hits zero.",t:"The stranger's estimate. One attempt.",r:12,dirs:1},
+ {id:"S6",fam:"Stunt",n:"Scavenger",w:"Train or platform",d:"Photograph all five on the list. The list changes with the part of town you're in.",c:"Fifth photo taken.",t:"20 minutes.",r:12,timer:1200,list:["A taco truck","Someone in a Dodgers cap","A mural taller than you","Someone on a rental scooter","Someone asleep"]},
+ {id:"S8",fam:"Stunt",n:"Train Pong",w:"This ride",d:"Set an empty cup on one side of the car and sit on the opposite side, as far away as you can. You have ten throws to land three in a row before the next stop.",c:"Three in the cup in a row before the doors open.",t:"Ten throws.",r:10,ride:1,throws:{max:10,target:3,row:1}},
+ {id:"S9",fam:"Stunt",n:"Bike It",w:"The next hop",d:"At the next stop, get off and ride rental bikes (Metro Bike Share, Lime, Bird, whatever is docked nearby) to the station after it, instead of taking the train or bus. Both of you ride.",c:"Both of you on the platform at the next station, bikes parked, before the timer hits zero.",t:"20 minutes from the doors opening.",r:12,timer:1200,span:1},
  {id:"S11",fam:"Stunt",n:"Local Plate",w:"The station",d:"Buy and finish one: a street taco from a truck or stand, a bacon-wrapped hot dog, a pastrami sandwich, a pupusa, a Double-Double. Then give a 60-second review to the most senior staff member on the premises, found by asking.",c:"The staff member gives their verdict on your verdict.",t:"No clock: lines and kitchens take what they take. Settle it before you board again.",r:10},
- {id:"S12",fam:"Stunt",n:"Seatmate",w:"This ride",d:"Sit next to a stranger. Get them to show you one photo on their phone and tell you the story behind it.",c:"The story on camera, 30 seconds or more, before the doors open.",t:"Up to two strangers.",r:10,ride:1,strikes:{max:2,label:"Declined"}},
- {id:"S13",fam:"Stunt",n:"Trade Up",w:"Three rides",d:"Trade something from your pocket with a rider for something of theirs. On each of your next two rides, trade what you got for something better.",c:"Three trades on camera, one per ride.",t:"Your next three rides.",r:15,span:1,tally:{target:3,label:"Trade",perBoard:1}},
- {id:"S14",fam:"Stunt",n:"Guess My Stop",w:"This ride",d:"Ask a rider if you can guess where they are getting off. Three guesses.",c:"A right guess, confirmed by the rider on camera.",t:"Up to three riders, one guess each, before the doors open.",r:8,ride:1,tally:{target:1,label:"Right"},strikes:{max:3,label:"Wrong"}},
- {id:"G0",fam:"Gambit",n:"Double Or Nothing",w:"This ride",d:"As the doors close, you get ten seconds to count everyone on the vehicle and say the number on camera. Then Camera walks the car and counts properly before the doors open.",c:"Your number is within two of Camera's.",t:"One attempt.",r:"Bank ×1.5, or ×0.5 on a miss",ride:1,dbl:1},
- {id:"G1",fam:"Gambit",n:"Pickpocket",w:"The next station",d:"Pick a platform Stunt on the way in. Complete it at the next station.",c:"The Stunt counts by its own rules.",t:"30 minutes from the doors opening.",r:"The station is yours, whoever holds it. Miss: 30% of your bank to them.",pick:1,timer:1800},
- {id:"G2",fam:"Gambit",n:"Eminent Domain",w:"This ride or the platform",d:"Run Three Agrees In A Row on the train into the next station, or on its platform.",c:"Three agrees in a row.",t:"One attempt: the first disagree fails it.",r:"The station is yours, free. If it was theirs, they also pay you its price.",eminent:1,tally:{target:3,label:"Agree",failOn:"Disagree"}},
- {id:"G3",fam:"Gambit",n:"Express",w:"Anywhere",d:"Name a station at least five stops away and the minute you will both be standing on its platform. Phones allowed.",c:"You arrive there by that minute.",t:"One attempt.",r:"Bank ×1.5, or ×0.5 if late",express:1,span:1},
- {id:"G4",fam:"Gambit",n:"Smash And Grab",w:"Three rides",d:"Record seven takes before the doors open at the third station from here.",c:"Seven takes in three hops.",t:"Three hops.",r:"The middle station of the three is yours, whoever holds it",span:1,smash:1,tally:{target:7,label:"Take"}},
- {id:"G5",fam:"Gambit",n:"Bank Run",w:"Anywhere",d:"Declare how many of your next three cards you will pass: two or three.",c:"The declared number is met.",t:"Your next three cards.",r:"+10 chips per card passed, or lose 10",bankrun:1,declare:[2,3]},
- {id:"G6",fam:"Gambit",n:"Duel: Train Pong",w:"This ride",d:"Both of you play Train Pong into the same cup, alternating throws.",c:"Most in the cup after ten throws each. A tie replays.",t:"One ride.",r:"Winner takes 8 chips from the loser",duel:"pong",amt:8,ride:1},
- {id:"G7",fam:"Gambit",n:"Duel: Four Agrees",w:"This ride",d:"Both of you run Four Agrees In A Row on the same train, taking turns with riders.",c:"First to four. Nobody there before the doors open: no chips move.",t:"One ride.",r:"Winner takes 10 chips from the loser",duel:"agree",amt:10,ride:1},
+ {id:"S12",fam:"Stunt",n:"Seatmate",w:"Train or platform",d:"Sit next to a stranger on the train, or stop one on the street at the next stop. Get them to show you one photo on their phone and tell you the story behind it.",c:"The story on camera, 30 seconds or more.",t:"10 minutes at the stop. Up to three strangers.",r:10,timer:600,strikes:{max:3,label:"Declined"}},
+ {id:"S13",fam:"Stunt",n:"Trade Up",w:"Three rides",d:"Trade something from your pocket with a rider for something of theirs, or buy something for under $5 to start with. On each of your next two rides, trade what you have for something better. The more it is worth at the end, the more it pays.",c:"Three trades on camera, one per ride.",t:"Your next three rides.",r:15,rtxt:"15 monies, or 20 if your last item is worth $20 or more",span:1,tally:{target:3,label:"Trade",perBoard:1},bonus:{label:"Last item worth $20 or more",chips:5}},
 ];
 const CARD=Object.fromEntries(CARDS.map(c=>[c.id,c]));
 // the printed card text as shipped, so a city's wording never leaks into the next city loaded on the same page
 const CARD_BASE=JSON.parse(JSON.stringify(CARD));
-const STATION_STUNTS=["S0","S1","S6","S9","S11"];
+const STATION_STUNTS=["S0","S1","S6","S9","S11","S12"];
+// what a failed card costs: half its printed monies (Call Your Takes: the whole declared amount)
+const CYT_PAY={2:6,3:11,4:17,5:24};
+function cardLoss(c,o){if(c.cyt)return CYT_PAY[o.declared]||0;return typeof c.r==="number"?Math.ceil(c.r/2):0}
+// a card whose list depends on the part of town
+function cardListFor(c,at){if(!c.lists)return null;const a=MAJ.find(x=>x.ids.includes(at));return (a&&c.lists[a.n])||c.list}
 
 
 // ================= curses: either player plays one on the other =================
 const CURSES=[
- {n:"Rush Hour",when:"Before their next card",eff:"Their next card's time limit is halved.",dur:"One card",cost:"2 chips",k:"rush",chips:2},
- {n:"Roadblock",when:"Before their next card",eff:"Their next Take or Stunt can't win them the station. Pass it and they keep the chips, but the station goes to auction.",dur:"One card",cost:"2 chips",k:"road",chips:2},
- {n:"Wrong Platform",when:"Before their next hop",eff:"You pick where their next hop goes, from the neighbouring stations.",dur:"One hop",cost:"2 chips",k:"wrong",chips:2},
- {n:"Double Fare",when:"Any time",eff:"Their next buy, bid or buyout costs double.",dur:"One purchase",cost:"2 chips",k:"fare",chips:2},
- {n:"Gilded Station",when:"At a station you own",eff:"Buying it out costs 10, and a card pass there does not take it. Only a buyout does.",dur:"Rest of the day",cost:"2 chips",k:"gilded",chips:2},
- {n:"Second Opinion",when:"Before their next card",eff:"After they pass their next card, they have to find a stranger who agrees with a take of theirs. Three strangers disagree and the card fails.",dur:"One card",cost:"2 chips",k:"second",chips:2},
- {n:"Silent Car",when:"Any time",eff:"They may not speak to a stranger until the doors open at their second stop from now.",dur:"Two stops",cost:"2 chips",k:"silent",chips:2},
- {n:"Jury Duty",when:"Any time",eff:"They may not buy or bid until they record a take from someone under 25 or over 65, asked, not guessed.",dur:"Until done",cost:"3 chips",k:"jury",chips:3},
+ {n:"Rush Hour",when:"Before their next card",eff:"Their next card's time limit is halved.",dur:"One card",cost:"2 monies",k:"rush",chips:2},
+ {n:"Roadblock",when:"Before their next card",eff:"Their next Take or Stunt can't win them the station. Pass it and they keep the monies, but the station goes to auction.",dur:"One card",cost:"2 monies",k:"road",chips:2},
+ {n:"Wrong Platform",when:"Before their next hop",eff:"You pick where their next hop goes, from the neighbouring stations.",dur:"One hop",cost:"2 monies",k:"wrong",chips:2},
+ {n:"Double Fare",when:"Any time",eff:"Their next buy, bid or buyout costs double.",dur:"One purchase",cost:"2 monies",k:"fare",chips:2},
+ {n:"Gilded Station",when:"At a station you own",eff:"Buying it out costs 10, and a card pass there does not take it. Only a buyout does.",dur:"Rest of the day",cost:"2 monies",k:"gilded",chips:2},
+ {n:"Silent Car",when:"Any time",eff:"They may not speak to a stranger until the doors open at their second stop from now.",dur:"Two stops",cost:"2 monies",k:"silent",chips:2},
+ {n:"Jury Duty",when:"Any time",eff:"They can't buy, bid or challenge a station until they record a political take from someone under 25 or over 65.",dur:"Until done",cost:"3 monies",k:"jury",chips:3},
 ];
 
 
@@ -716,20 +718,27 @@ CITIES.la={
  // bike lanes and paths
  ["pico","expopark","bike",12],["hvine","vsunset","bike",10],["culver","westwood","bike",14],["bergamot","dtsm","bike",11]],
  locks:{
- ltokyo:{n:"Thousand Cranes",d:"Buy a sheet of origami paper in Little Tokyo (the gift shops and bookstores sell it). Find someone who can fold a paper crane and get them to teach you, step by step. Your hands fold it; theirs don't touch it.",c:"A finished crane that stands up on its own, folded by you, with your teacher on camera.",t:"25 minutes. Up to three people asked.",r:15,timer:1500,strikes:{max:3,label:"Declined"},callOnly:1},
- civic:{n:"Public Comment",d:"Stand on the City Hall steps on Spring Street, facing Grand Park. Put one take of yours to people walking past, one at a time, and give each of them a minute, like the real thing. Camera logs each vote in the app.",c:"Ten votes, and the vote is not unanimous.",t:"15 minutes.",r:12,timer:900,poll:10},
- bunker:{n:"The Shortest Railway",d:"Walk down Grand Avenue to the top of Angels Flight at California Plaza. Ride it down to Hill Street and back up; it's a dollar a ride, less with a TAP card. On each ride, get one rider to give you a take on downtown LA, one-on-one.",c:"Two takes, one from each ride, before the timer hits zero.",t:"20 minutes. A car leaves every few minutes.",r:14,timer:1200,tally:{target:2,label:"Take"}},
- pershing:{n:"Grand Central",d:"Cross Hill Street into Grand Central Market, open since 1917. No counter used twice.",c:"Five of the seven, each on camera, inside the time.",t:"25 minutes.",r:20,timer:1500,list:["Get someone behind a counter to name the best thing in the market that isn't theirs","Get a stranger at the shared tables to rate their lunch out of ten, with one reason","Get a counter worker to tell you how long they've worked here","Buy the cheapest thing on any menu and finish it on camera","Get a stranger to guess the year the market opened, within ten years of 1917","Get a vendor to teach you how to say \"delicious\" in a language they speak, and say it back","Get a stranger to pick the neon sign they'd hang in their kitchen"],listTarget:5},
+ ltokyo:{n:"Thousand Cranes",d:"Buy a sheet of origami paper in Little Tokyo (the gift shops and bookstores sell it). Find someone who can fold a paper crane and get them to teach you, step by step. Your hands fold it; theirs don't touch it. Then get down on one knee and present the crane to a stranger like an engagement ring. Keep proposing until someone says yes and takes it.",c:"A crane folded by you that stands up on its own, and a stranger who accepts it from one knee, on camera.",t:"25 minutes. Up to three teachers; as many proposals as it takes.",r:16,timer:1500,strikes:{max:3,label:"Teacher declined"},callOnly:1},
+ civic:{n:"Public Comment",d:"Make a sign with a heinous take on it and stand on the City Hall steps on Spring Street, facing Grand Park. Hold it up and poll people walking past, one at a time: for or against. Log each vote in the app. When the poll closes, announce the result to the whole plaza as if the city has just ruled on it.",c:"Ten votes logged, and the result shouted to the plaza, on camera.",t:"20 minutes, sign-making included.",r:14,timer:1200,poll:10,callOnly:1},
+ bunker:{n:"Opening Night",d:"Grand Avenue is the city's stage: Walt Disney Concert Hall, the Music Center, The Broad and MOCA all sit on this hill. Put on a sixty-second show on the Disney Hall steps or the Music Center plaza (sing, dance, a monologue, anything) and draw a crowd. When you take your bow, get the crowd to give you a standing ovation, then get one of them to review it in one line, like a critic.",c:"Five or more strangers applauding your bow, and one critic's review, on camera.",t:"20 minutes. Up to three performances.",r:14,timer:1200,list:["A crowd of five or more applauds your bow","One of them gives a one-line review"],listTarget:2,strikes:{max:3,label:"Show flopped"}},
+ pershing:{n:"Grand Central",d:"Cross Hill Street into Grand Central Market, open since 1917. Ask someone working a counter for the best thing in the market that isn't theirs. Convince a stranger to buy that dish and share it with you. If it comes from another country, order it in that country's language. Then review it together, out loud, to whoever served you.",c:"The recommendation, the stranger's purchase, the order and the review to the server, on camera.",t:"25 minutes.",r:18,timer:1500,list:["A counter worker names the best thing in the market that isn't theirs","A stranger buys it and shares it with you","Ordered in the dish's language, if it has one","The two of you review it to whoever served it"],listTarget:4},
  pico:{n:"Strike The Pose",d:"Walk to Star Plaza outside Crypto.com Arena, where the bronze statues stand: Magic, Kareem, Kobe, Shaq, Gretzky and more. For three different statues, get a stranger to copy the statue's pose beside it, with you, for one photo.",c:"Three photos, three statues, three different strangers.",t:"20 minutes. Six strangers can say no before it fails.",r:14,timer:1200,tally:{target:3,label:"Photo"},strikes:{max:6,label:"Declined"}},
- hhighland:{n:"Name A Star",d:"Ask a stranger to name a famous person. Find that person's star on the Walk of Fame and touch it. If they don't have a star, or it's more than four blocks away, ask someone new. Phones allowed.",c:"Three stars touched, each named by a different stranger, before the timer hits zero.",t:"25 minutes.",r:16,timer:1500,tally:{target:3,label:"Star"}},
- hvine:{n:"Capitol Hits",d:"Stand under the Capitol Records Tower, the one built to look like a stack of records. Hum the first ten seconds of a song to a stranger; they get one guess. Capitol put out the Beatles, the Beach Boys, Sinatra, Nat King Cole and Katy Perry, if you need ideas.",c:"Three strangers each name the song you hummed, three different songs.",t:"15 minutes. Six wrong guesses fail it.",r:12,timer:900,tally:{target:3,label:"Named it"},strikes:{max:6,label:"Wrong"}},
- wwestern:{n:"Pick My Spice",d:"Find a soondubu (tofu stew) house in Koreatown near the station. Before you order, ask a stranger to pick your spice level off the menu. Order it at that level, tell the server who picked it, and finish the bowl.",c:"An empty stew bowl on camera. Rice and side dishes don't count against you.",t:"No clock: kitchens take what they take. Settle it before you board again.",r:14,callOnly:1},
+ hhighland:{n:"Name A Star",d:"Ask a stranger to name their favourite celebrity. Find out whether that person has a star on the Walk of Fame; if they don't, ask someone new. Touch the star and do your best impression of the celebrity, standing on it.",c:"The star touched and the impression delivered, on camera.",t:"20 minutes. Phones allowed for finding the star.",r:14,timer:1200,callOnly:1},
+ hvine:{n:"Capitol Hits",d:"Stand under the Capitol Records Tower, the one built to look like a stack of records. Get a stranger to give you a song. Without listening to it, sing its chorus to other strangers, one at a time, until three of them name the song.",c:"Three strangers name the song from your singing, on camera.",t:"15 minutes. Six wrong guesses fail it.",r:12,timer:900,tally:{target:3,label:"Named it"},strikes:{max:6,label:"Wrong"}},
+ wwestern:{n:"Full Spice",d:"The teammate with the lowest spice tolerance plays this one. Find a soondubu (tofu stew) house in Koreatown near the station. Order at the spiciest level on the menu and finish the bowl.",c:"An empty stew bowl on camera. Rice and side dishes don't count against you.",t:"No clock: kitchens take what they take. Settle it before you board again.",r:14,callOnly:1},
  wfairfax:{n:"Urban Light",d:"Walk to Urban Light, the forest of old cast-iron street lamps in front of LACMA. Ask strangers among the lamps how many there are. One guess each, no counting out loud.",c:"A stranger guesses within 15 of the real number, 202.",t:"15 minutes. Up to eight strangers.",r:10,timer:900,tally:{target:1,label:"Within 15"},strikes:{max:8,label:"Miss"}},
- jeffusc:{n:"Crosstown Compliment",d:"Walk onto the USC campus. Get a USC student to say one genuinely nice thing about UCLA, on camera. Then get a second USC student to agree with it.",c:"The compliment and the agreement, from two different USC students, on camera.",t:"15 minutes. Six students can refuse before it fails.",r:12,timer:900,list:["A USC student says something nice about UCLA, and means it","A second USC student agrees with it"],listTarget:2,strikes:{max:6,label:"Refused"}},
- expopark:{n:"Torch Relay",d:"LA hosts the Olympics in 2028. Roll up anything you have (a map, a receipt, a sleeve of paper) into a torch. In Exposition Park, get three strangers to each carry it 20 steps beside you. The last leg ends under the Coliseum's Olympic torch, at the peristyle arches.",c:"Three legs, three strangers, the third finishing at the peristyle, on camera.",t:"20 minutes.",r:14,timer:1200,tally:{target:3,label:"Leg"}},
- culver:{n:"Screen Test",d:"Culver City calls itself the Heart of Screenland; the studios are a few blocks away. Get strangers, one at a time, to deliver a famous movie line to camera like they mean it, and name the movie.",c:"Three lines, three different movies, three strangers, before the timer hits zero.",t:"15 minutes.",r:12,timer:900,tally:{target:3,label:"Line"}},
+ jeffusc:{n:"Across The Aisle",d:"Walk onto the USC campus. Get a student to give a genuine compliment, on camera, to a political party they dislike. Then show the clip to a second USC student and film their reaction.",c:"The compliment and the second student's reaction, on camera.",t:"15 minutes. Six students can refuse before it fails.",r:12,timer:900,list:["A USC student compliments a party they dislike, and means it","A second USC student watches the clip and reacts"],listTarget:2,strikes:{max:6,label:"Refused"}},
+ expopark:{n:"Rose Garden Vows",d:"Walk into the Exposition Park Rose Garden, behind the Natural History Museum (if it's closed for winter pruning, use the museum's front lawn). Find a couple and talk them into renewing their vows on the spot. You officiate: sixty seconds, with at least two strangers as witnesses.",c:"Both partners say \"I do\" and the witnesses applaud, on camera.",t:"20 minutes. Up to four couples asked.",r:14,timer:1200,strikes:{max:4,label:"Couple declined"},callOnly:1},
+ culver:{n:"Screen Test",d:"Culver City calls itself the Heart of Screenland; the studios are a few blocks away. Get strangers, one at a time, to deliver a famous movie line to camera like they mean it, name the movie, then do an impression of an actor from it.",c:"Three lines, three movies, three impressions, three strangers, before the timer hits zero.",t:"15 minutes.",r:12,timer:900,tally:{target:3,label:"Line"}},
  dtsm:{n:"End Of The Trail",d:"Walk down to Santa Monica Pier, where Route 66 ends. Photograph what you can spot, and touch the Pacific: down on the sand, hands in the water.",c:"Hands in the Pacific, plus four more from the list, photographed inside the time.",t:"25 minutes.",r:20,timer:1500,list:["Touched the Pacific, on camera","At the Santa Monica 66 End of the Trail sign","A pelican","A surfer riding a wave","A dolphin or a sea lion","Someone on the pier with a fish they caught","A volleyball game on the sand","A street performer on the pier, with their nod"],listTarget:5,req:[0]},
 },
+ cardText:{
+  S6:{lists:{
+   "Downtown":["A food truck","Someone in a Dodgers cap","A mural two storeys tall","A pigeon on a statue","Someone asleep"],
+   "Hollywood":["A costumed character on the Boulevard","A tour bus","A Walk of Fame star for someone you've never heard of","A palm tree taller than the building beside it","Someone asleep"],
+   "Wilshire":["A Korean barbecue sign","A fruit cart with mango on a stick","An art-deco building","A dog in a stroller","Someone asleep"],
+   "E Line":["A taco truck","Someone on a rental scooter","A surfboard or a skateboard","A car flying a Lakers flag","Someone asleep"]}},
+ },
  areas:[
   {n:"E Line",ids:["lattc","jeffusc","expopark","expovermont","expowestern","expocrenshaw","farmdale","expolabrea","lacienega","culver","palms","westwood","sepulveda","bundy","bergamot","smc","dtsm"],pts:8},
   {n:"Downtown",ids:["union","civic","ltokyo","broadway","bunker","pershing","metro","pico","westlake","wvermont"],pts:5},
@@ -881,8 +890,6 @@ CITIES.sea={
   {n:"SLU Streetcar",ids:["sl0","sl1","sl2","sl3","sl4","sl5","sl6"],pts:4},
   {n:"2 Line, Monorail, King St",ids:["judkins","kingst","wlcenter","seacenter"],pts:3}],
  cardText:{
-  S3:{d:"Study the car map for 60 seconds, then recite the next twelve stops in order with the map covered.",c:"Twelve in order, no help."},
-  S5:{d:"Find a rider who has lived in Seattle longer than the two of you combined. They give you one take on how the city has changed. You argue the opposite for 30 seconds."},
   S6:{list:["A crow","A dog in a raincoat","A Seahawks hat","Someone asleep","A seaplane"]},
   S11:{d:"Buy and finish one: a teriyaki plate, a Dick's Deluxe, a Top Pot doughnut, a Beecher's grilled cheese. Then give a 60-second review to the most senior staff member on the premises, found by asking."}},
  map:{thumbFocus:"westlake",
@@ -1983,7 +1990,7 @@ function paceNeed(){
 function canDraw(){return !S.sz&&minsLeft()-paceNeed()>10}
 function locked(){return S.done||now()>=stopAt()}
 function hops(a,b){const d=dist(a);return Math.round((d[b]||0)/4)}
-function spec(o){return o.lock?LOCKS[o.id]:CARD[o.id]}
+function spec(o){const b=o.lock?LOCKS[o.id]:CARD[o.id];return o.listItems?Object.assign({},b,{list:o.listItems}):b}
 function nextRec(){
  const c=S.cur;if(!c)return START_ID;
  const u=unvisited();if(!u.length)return ADJ[c][0];
@@ -1992,7 +1999,7 @@ function nextRec(){
  for(const n of ADJ[c]){const d=dist(n);const t=Math.min(...u.map(s=>(s.id===n?0:d[s.id]??1e9)))+EDGE[c+">"+n].t;if(t<bt){bt=t;best=n}}
  return best;
 }
-const LAY_EVERY=3*3600000,LAY_MIN=25;
+const LAY_EVERY=3*3600000,LAY_MIN=45;
 function layDue(){return S.phase==="play"&&now()-(S.layLast||S.startedAt||now())>=LAY_EVERY}
 function szHere(){if(!S.cur||S.sz||!S.hop||!S.hop.settled)return null;return layDue()?S.cur:null}
 
@@ -2031,7 +2038,7 @@ function startGame(){
  S.pile=shuffle(CARDS.map(c=>c.id));
  S.cpile=shuffle(CURSES.flatMap((c,i)=>[i,i]));
  S.gid=Math.random().toString(36).slice(2);S.startedAt=now();S.layLast=now();S.up=Math.random()<.5?0:1;S.phase="play";S.bank=[START,START];S.stopTs=stopAt();if(S.stopTs-now()>18*3600000)log("Hard stop "+S.stop+" has already passed today; it is set for tomorrow. Change it in the Log tab.");
- log("Coin toss: "+pn(S.up)+" is Up first. Deck and curse pile shuffled. "+START+" chips each.");
+ log("Coin toss: "+pn(S.up)+" is Up first. Deck and curse pile shuffled. "+START+" monies each.");
 
 }
 function own(id,p){const prev=S.st[id].o;S.st[id].o=p;S.st[id].last=now();S.hist.push({t:now(),id,o:p});if(prev!==p)drawCurse(1-p)}
@@ -2096,7 +2103,7 @@ function afterStop(p,id){
  }
  if(o.id==="G3"){if(id===o.target)return finishFor(p,now()<=o.deadline?"win":"fail",now()<=o.deadline?"On the platform by "+hhmm(o.deadline)+".":"Late.");return}
  if(o.id==="T4")return finishFor(p,o.tally>=o.declared?"win":"fail",o.tally>=o.declared?"Declared "+o.declared+", recorded "+o.tally+".":"Got "+o.tally+" of "+o.declared+".");
- if(o.id==="G7"){log("Duel ends at the doors with nobody at seven. No chips move.");S.open[p]=null;return}
+ if(o.id==="G7"){log("Duel ends at the doors with nobody at seven. No monies move.");S.open[p]=null;return}
  if(sp.stopGoal){const prog=S.stops-(o.resetAt??o.startStops);if(prog>=sp.stopGoal)return finishFor(p,"win",sp.stopGoal+" stops in a row.");return}
  if(sp.ride&&!sp.span)return finishFor(p,"fail","Doors opened first.");
 }
@@ -2130,7 +2137,7 @@ function openCard(p,id){
  const second=!!f.second;if(second){f.second=false;log("Second Opinion: a stranger has to agree this card counts.")}
  const rush=f.rush;if(rush){f.rush=false;log("Rush Hour: time limit halved.")}
  if(id==="S10")S.balanceN++;
- S.open[p]={id,p,lock:false,drawnAt:now(),drawStops:S.stops,stakes:c.fam==="Gambit"?"gambit":(forced?"allin":null),forced,rush,sooth,road,second,started:false,tally:0,strikes:0,list:[],declared:null};
+ S.open[p]={id,p,lock:false,drawnAt:now(),drawStops:S.stops,stakes:"set",forced,listItems:cardListFor(c,S.hop?S.hop.to:(S.cur||START_ID)),rush,sooth,road,second,started:false,tally:0,strikes:0,list:[],declared:null};
  log(pn(p)+" draws "+c.n+".");
 
 }
@@ -2145,7 +2152,6 @@ function openLock(id){
 function canStart(o){
  if(!o||o.started)return {ok:false};
  const sp=spec(o),p=o.p;
- if(!o.stakes)return {ok:false,why:"Pick Safe or All-in."};
  if(sp.declare&&!o.declared)return {ok:false,why:"Declare a number first."};
  if(sp.ride&&!o.lock&&S.hop&&S.hop.arrived&&!sp.span)return {ok:false,why:"Start it on the train."};
  if(o.lock&&sp.bridge&&!o.bridgeBoarded)return {ok:false,why:sp.bridge.need};
@@ -2169,7 +2175,7 @@ function begin(o){
  if(o.id==="G0"&&!o.lock)o.tEnd=now()+10000;
  log("Started: "+sp.n+".");
 }
-function mult(o){return o.stakes==="allin"?2:1}
+function mult(o){return 1}
 function reinsertBalance(){const i=Math.floor(Math.random()*(S.pile.length+1));S.pile.splice(i,0,"S10");log("Balance Act goes back into the pile.")}
 function setFirst(p,out){
  const h=S.hop;if(!h||h.settled||h.up!==p)return;
@@ -2201,9 +2207,10 @@ function finishFor(p,out,note){
   if(c.id==="G1"){const id=o.pickAt;if(S.st[id].o===q)S.stats.tko[p]++;if(S.st[id].o!==p){own(id,p);log(pn(p)+" pickpockets "+ST[id].n+".")}if(S.hop&&S.hop.to===id){S.hop.settled=true;S.auc=null}}
   if(c.id==="G2"){const id=o.emAt,pr=ST[id].p;if(S.st[id].o===q){const n=Math.min(pr,S.bank[q]);S.bank[q]-=n;S.bank[p]+=n;S.credits[p]+=n;S.stats.tko[p]++;log(pn(q)+" pays "+n+" with it.")}if(S.st[id].o!==p)own(id,p);log(pn(p)+" claims "+ST[id].n+" by Eminent Domain.");if(S.hop&&S.hop.to===id){S.hop.settled=true;S.auc=null}}
   if(c.id==="G4"){const mid=o.seen[1];if(S.st[mid].o===q)S.stats.tko[p]++;if(S.st[mid].o!==p)own(mid,p);log(pn(p)+" smashes and grabs "+ST[mid].n+".")}
+  if(c.bonus&&o.bonus)base+=c.bonus.chips;
   if(base>0){gain=Math.floor(base*mult(o));if(o.sooth==="hit")gain=0;if(o.sooth==="miss")gain*=2;S.bank[p]+=gain;S.credits[p]+=gain}
   S.stats.cards[p]++;
-  if(c.fam!=="Gambit")log(pn(p)+" passes "+c.n+(o.stakes==="allin"?" All-in":"")+(gain?": +"+gain:"")+(note?" ("+note+")":"")+".");
+  if(c.fam!=="Gambit")log(pn(p)+" passes "+c.n+(gain?": +"+gain:"")+(note?" ("+note+")":"")+".");
   if(c.balance)reinsertBalance();
   if(o.road&&S.hop)S.hop.road=true;bankrunTick(p,true);setFirst(p,o.road?"blocked":"win");
   flash("Pass",pn(p)+(gain?" +"+gain+" chips.":" passes "+c.n+".")+(o.road?" Roadblock: the station goes to auction.":S.hop&&S.hop.up===p&&!S.hop.lock&&!S.hop.settled?" First option on the station.":""),"Take");
@@ -2218,8 +2225,7 @@ function finishFor(p,out,note){
   else if(c.id==="G1"){const n=Math.floor(S.bank[p]*.3);S.bank[p]-=n;S.bank[q]+=n;S.credits[q]+=n;log(pn(p)+" fails Pickpocket: "+n+" to "+pn(q)+".")}
   else log(pn(p)+" fails "+c.n+(note?" ("+note+")":"")+".");
  }else{
-  if(o.stakes==="allin"){const n=Math.min(3,S.bank[p]);S.bank[p]-=n;S.bank[q]+=n;S.credits[q]+=n;log(pn(p)+" fails "+c.n+" All-in"+(note?" ("+note+")":"")+". "+n+" chips to "+pn(q)+".")}
-  else log(pn(p)+" fails "+c.n+(note?" ("+note+")":"")+".");
+  {const n=Math.min(cardLoss(c,o),S.bank[p]);S.bank[p]-=n;log(pn(p)+" fails "+c.n+(note?" ("+note+")":"")+(n?". Loses "+n+" chips.":"."))}
   if(c.balance)reinsertBalance();
  }
  bankrunTick(p,false);setFirst(p,"fail");
@@ -2354,10 +2360,10 @@ function navHTML(info){
    if(sealed(cand))bits.push("sealed");
    if(S.open[nextUp])bits.push(esc(spec(S.open[nextUp]).n)+" carries on");
    main=go(`data-act="hop" data-id="${cand}"`,"Doors closing: "+esc(ST[cand].n),bits.join(", "));
-   if(S.boards>0)sides=S.hij==null?side(`data-act="hijack" ${S.bank[u]>=HIJACK?"":"disabled"}`,"Hijack",HIJACK+" chips"):side('data-act="unhijack"',"Undo","hijack");
+   if(S.boards>0)sides=S.hij==null?side(`data-act="hijack" ${S.bank[u]>=HIJACK?"":"disabled"}`,"Hijack",HIJACK+" monies"):side('data-act="unhijack"',"Undo","hijack");
    const others=ADJ[S.cur].filter(x=>x!==cand);
    chips=others.map(id=>`<button class="fchip${S.st[id].vis?"":" new"}" data-act="pick" data-id="${id}"><b>${esc(ST[id].n)}</b><span>${esc(viaTxt(S.cur,id))}</span></button>`).join("");
-   if(rec!==cand&&unvisited().length)chips=`<button class="fchip hint" data-act="pick" data-id="${rec}"><b>Nearest new stop</b><span>${esc(ST[rec].n)}</span></button>`+chips;
+   if(rec!==cand&&unvisited().length)chips=`<button class="fchip hint" data-act="pick" data-id="${rec}"><b>Nearest new stop</b><span>${esc(ST[rec].n)}</span></button>`+monies;
   }
  }
  return `<div class="fbottom">${info||""}${showKey?legendHTML():""}${chips?`<div class="fchips">${chips}</div>`:""}<div class="fnav sheet">${main}${sides}</div></div>`;
@@ -2385,7 +2391,7 @@ function stationPanel(id){
  if(v.o==null){
   if(sealed(id)){
    if(o&&o.lock)x+=`<div class="banner" style="border-color:var(--gold)">${esc(LOCKS[id].n)} is open. Run it from the Cards tab.</div><div class="small muted">Run it below.</div>`;
-   else if(o&&!spec(o).span)x+=`<div class="banner warn">${esc(pn(u))}'s card ${esc(spec(o).n)} is still open. Settle it (it pays chips), then open the sealed challenge.</div><div class="small muted">It's below.</div>`;
+   else if(o&&!spec(o).span)x+=`<div class="banner warn">${esc(pn(u))}'s card ${esc(spec(o).n)} is still open. Settle it (it pays monies), then open the sealed challenge.</div><div class="small muted">It's below.</div>`;
    else if(o)x+=`<div class="banner" style="border-color:var(--gold)">A sealed challenge waits here. ${esc(spec(o).n)} pauses while ${esc(pn(u))} attempts it.</div><button class="ink bigbtn" data-act="lockopen">Open the sealed challenge</button>`;
    else x+=`<div class="banner" style="border-color:var(--gold)">A sealed challenge waits here. ${esc(pn(u))} opens it on camera.${v.failedBy!=null&&v.failedBy!==u?" <b>Pays double:</b> "+esc(pn(v.failedBy))+" failed it.":v.failedBy===u?" You failed it before; same payout.":""}</div><button class="ink bigbtn" data-act="lockopen">Open the sealed challenge</button>`;
   }else{
@@ -2393,7 +2399,7 @@ function stationPanel(id){
    if(f==="wait"){x+=`<div class="banner">${esc(pn(u))} is on ${esc(spec(o).n)} here. Pass it for first option on ${esc(s.n)}; fail or veto and ${esc(pn(c))} gets it.</div><div class="small muted">Run it below.</div>`}
    else if(f===u&&s.p<4){const noBuy=S.fx[f].jury;
     x+=`<div class="banner">${esc(pn(f))} has first option${h.card==="none"?"":h.first==null?" (card still going)":" ("+(f===u?"passed the card":esc(pn(u))+" failed")+")"}.</div><div class="row"><button class="p${f+1} bigbtn" data-act="buy" data-p="${f}" ${S.bank[f]<pr*(S.fx[f].fare?2:1)||noBuy?"disabled":""}>${esc(pn(f))} buys for ${pr*(S.fx[f].fare?2:1)}${S.fx[f].fare?" (Double Fare)":""}</button><button class="bigbtn" data-act="aucopen">Pass: auction it</button></div>${noBuy?`<div class="small muted">Jury Duty: ${esc(pn(f))} can't buy until the take is recorded.</div>`:S.bank[f]<pr?`<div class="small muted">${esc(pn(f))} can't afford it.</div>`:""}`}
-   else{const why=s.p===4?"Hubs (4-point stations) can't be bought outright. They always go to auction.":h.aucWhy==="road"?"Roadblock: the pass paid chips but can't win the station.":h.card==="none"?"No card this hop, so nobody earned the right to buy it.":esc(pn(u))+" failed or vetoed the card, so nobody gets to buy it outright.";
+   else{const why=s.p===4?"Hubs (4-star stations) can't be bought outright. They always go to auction.":h.aucWhy==="road"?"Roadblock: the pass paid monies but can't win the station.":h.card==="none"?"No card this hop, so nobody earned the right to buy it.":esc(pn(u))+" failed or vetoed the card, so nobody gets to buy it outright.";
     x+=`<div class="banner">${why} Either of you can bid, or leave it unowned.</div><div class="row"><button class="ink bigbtn" data-act="aucopen">Start the bidding</button><button class="bigbtn" data-act="aucskip">Leave it unowned</button></div>`}
   }
  }else if(v.o===c){
@@ -2440,17 +2446,12 @@ function renderCards(m){
 }
 function openPanel(o){
  const sp=spec(o),fam=o.lock?"Locked":sp.fam,p=o.p,q=1-p;
- let rewardTxt=typeof sp.r==="number"?String(sp.r)+" chips":sp.r;
- if(!o.lock&&sp.balance)rewardTxt=[8,12,16][Math.min(S.balanceN,3)-1]+" chips · object at least "+[12,24,36][Math.min(S.balanceN,3)-1]+" inches long";
- let body=`<dl><dt>Do this</dt><dd>${esc(sp.d)}</dd><dt>Counts</dt><dd>${esc(sp.c)}</dd><dt>Limit</dt><dd>${esc(sp.t)}${o.rush?" <b>Halved: Rush Hour.</b>":""}</dd><dt>${o.lock?"Win":"Reward"}</dt><dd>${esc(o.lock?(sp.two?"The station, and "+sp.r+" to the winner (×1.5 if two stations behind, ×0.5 if two ahead)":"The station and "+o.pay+" chips"+(o.boost>1?" (doubled after their fail)":"")+(o.band>1?" (behind: ×1.5)":o.band<1?" (ahead: ×0.5)":"")):rewardTxt)}${!o.lock&&sp.fam!=="Gambit"?", and first option on the station if you pass":""}</dd>${!o.lock&&o.id==="S1"?`<dt>Landmark</dt><dd><b>${esc(o.lm||ST[S.hop?S.hop.to:START_ID].lm)}</b></dd>`:""}</dl>`;
+ let rewardTxt=sp.rtxt||(typeof sp.r==="number"?String(sp.r)+" monies":sp.r);
+ if(!o.lock&&sp.balance)rewardTxt=[8,12,16][Math.min(S.balanceN,3)-1]+" monies · object at least "+[12,24,36][Math.min(S.balanceN,3)-1]+" inches long";
+ let body=`<dl><dt>Do this</dt><dd>${esc(sp.d)}</dd><dt>Counts</dt><dd>${esc(sp.c)}</dd><dt>Limit</dt><dd>${esc(sp.t)}${o.rush?" <b>Halved: Rush Hour.</b>":""}</dd><dt>${o.lock?"Win":"Reward"}</dt><dd>${esc(o.lock?(sp.two?"The station, and "+sp.r+" to the winner (×1.5 if two stations behind, ×0.5 if two ahead)":"The station and "+o.pay+" monies"+(o.boost>1?" (doubled after their fail)":"")+(o.band>1?" (behind: ×1.5)":o.band<1?" (ahead: ×0.5)":"")):rewardTxt)}${!o.lock&&sp.fam!=="Gambit"?", and first option on the station if you pass":""}</dd>${!o.lock&&o.id==="S1"?`<dt>Landmark</dt><dd><b>${esc(o.lm||ST[S.hop?S.hop.to:START_ID].lm)}</b></dd>`:""}</dl>`;
  if(o.sooth)body+=`<div class="banner warn">Soothsayer ${o.sooth==="hit"?"called it: this card pays nothing.":"missed: this card pays double."}</div>`;
- if(!o.lock&&sp.fam!=="Gambit"&&!o.started){
-  body+=`<div><div class="lbl" style="margin-bottom:6px">Say your stakes on camera</div><div class="stakes">
-   <button aria-pressed="${o.stakes==="safe"}" data-act="stake" data-p="${p}" data-k="safe" ${o.forced?"disabled":""}>Safe<span>Pays as printed. Fail it and the station goes to bidding.</span></button>
-   <button aria-pressed="${o.stakes==="allin"}" data-act="stake" data-p="${p}" data-k="allin" ${o.forced?"disabled":""}>All-in<span>Pays double. Fail it and ${esc(pn(q))} also gets 3 of your chips.</span></button></div></div>`;
- }
  if(!o.started){
-  if(!o.lock&&sp.declare)body+=`<div><label class="lbl" for="decl${p}">Declare</label><select id="decl${p}" data-in="decl" data-p="${p}"><option value="">Choose…</option>${sp.declare.map(n=>`<option ${o.declared==n?"selected":""}>${n}</option>`).join("")}</select></div>`;
+  if(!o.lock&&sp.declare)body+=`<div><div class="lbl" style="margin-bottom:6px">Declare how many takes</div><div class="stakes decl">${sp.declare.map(n=>`<button aria-pressed="${o.declared==n}" data-act="decl" data-p="${p}" data-n="${n}">${n} takes<span>+${CYT_PAY[n]} if you get them · −${CYT_PAY[n]} if you don't</span></button>`).join("")}</div></div>`;
   if(!o.lock&&o.id==="S1")body+=`<div><label class="lbl" for="est${p}">Stranger's estimate (minutes)</label><input id="est${p}" data-in="est" data-p="${p}" type="number" inputmode="numeric" min="1" max="60" value="${o.est||""}"></div>`;
   if(!o.lock&&o.id==="G1")body+=`<div><label class="lbl" for="stunt${p}">Stunt</label><select id="stunt${p}" data-in="stunt" data-p="${p}"><option value="">Choose…</option>${STATION_STUNTS.map(id=>`<option value="${id}" ${o.stunt===id?"selected":""}>${esc(CARD[id].n)}</option>`).join("")}</select></div>${o.stunt?`<div class="small"><b>${esc(CARD[o.stunt].n)}:</b> ${esc(CARD[o.stunt].d)} Counts: ${esc(CARD[o.stunt].c)}</div>`:""}`;
   if(o.lock&&sp.bridge)body+=`<button data-act="bridgeboard" data-p="${p}" ${o.bridgeBoarded?"disabled":""}>${esc(o.bridgeBoarded?sp.bridge.boarded:sp.bridge.board)}</button>`;
@@ -2481,7 +2482,7 @@ function livePanel(o,sp){
  if(sp.throws){x+=meter("In the cup",`${o.tally} / ${sp.throws.target}`,`<div class="small num">Throws ${o.strikes} / ${sp.throws.max}</div>`)+`<div class="grid2"><button class="good" data-act="throwin" data-p="${p}">In</button><button data-act="throwout" data-p="${p}">Miss</button></div>`}
  if(sp.list)x+=meter("Checked",`${o.list.length} / ${sp.listTarget||sp.list.length}`)+`<div class="checks">${sp.list.map((it,i)=>`<button data-act="check" data-p="${p}" data-i="${i}" aria-pressed="${o.list.includes(i)}">${o.list.includes(i)?"✓":"○"} ${esc(it)}${(sp.req||[]).includes(i)?" (required)":""}</button>`).join("")}</div>`;
  if(sp.hands)x+=`<div class="grid2"><div><label class="lbl" for="hands${p}">Hands up</label><input id="hands${p}" data-in="hands" data-p="${p}" type="number" inputmode="numeric" min="0" value="${o.hands??""}"></div><button class="ink" data-act="handsdone" data-p="${p}" style="align-self:end">Count it</button></div>`;
- if(!o.lock&&o.id==="G3")x+=meter("Target",`${esc(ST[o.target].n)}`,`<div class="small num">by ${hhmm(o.deadline)}</div>`);
+ if(sp.bonus)x+=`<button data-act="bonus" data-p="${p}" aria-pressed="${!!o.bonus}">${o.bonus?"✓":"○"} ${esc(sp.bonus.label)} (+${sp.bonus.chips})</button>`;
  if(!o.lock&&o.id==="G4")x+=`<div class="small muted">Stations passed: ${(o.seen||[]).map(id=>esc(ST[id].n)).join(", ")||"none yet"} of 3. Seven takes by the third; the middle one is the prize.</div>`;
  if(!o.lock&&o.id==="G0"){x+=`<div class="grid2"><div><label class="lbl" for="dc${p}">${esc(pn(p))}'s number</label><input id="dc${p}" data-in="dc" data-p="${p}" type="number" inputmode="numeric" value="${o.dc??""}"></div><div><label class="lbl" for="sc${p}">${esc(pn(q))}'s count</label><input id="sc${p}" data-in="sc" data-p="${p}" type="number" inputmode="numeric" value="${o.sc??""}"></div></div><button class="ink" data-act="dblcheck" data-p="${p}">Compare</button>`}
  if(o.lock&&sp.bridge)x+=`<button class="ink" data-act="bridgeend" data-p="${p}">${esc(sp.bridge.end)}</button>`;
@@ -2518,7 +2519,7 @@ function renderCurses(m){
   hand.forEach((ci,i)=>{const c=CURSES[ci];
    let extra="";
    if(c.k==="gilded")extra=`<select id="g${p}_${i}"><option value="">Your station…</option>${STATIONS.filter(s=>S.st[s.id].o===p&&!S.st[s.id].gild).map(s=>`<option value="${s.id}">${esc(s.n)}</option>`).join("")}</select>`;
-   if(c.k==="sooth")extra=`<select id="s${p}_${i}"><option value="">Call a family…</option><option>Take</option><option>Stunt</option><option>Gambit</option></select>`;
+   if(c.k==="sooth")extra=`<select id="s${p}_${i}"><option value="">Call a family…</option><option>Take</option><option>Stunt</option></select>`;
    const afford=S.bank[p]>=c.chips;
    x+=`<div class="cur"><b>${esc(c.n)}</b><div class="small">${esc(c.eff)}</div><div class="small muted">When: ${esc(c.when)} · ${esc(c.dur)} · ${esc(c.cost)}</div>${extra}
    <div class="row"><button class="ink" data-act="cplay" data-p="${p}" data-i="${i}" ${need||!afford||!isCam||locked()?"disabled":""}>Play on ${esc(pn(q))}${!isCam?" (when on Camera)":!afford?" (need "+c.chips+")":""}</button><button data-act="cdisc" data-p="${p}" data-i="${i}">Discard</button></div></div>`;});
@@ -2543,10 +2544,10 @@ function renderCount(m){
  const r=score(),h=[held(0),held(1)],col=p=>`style="color:var(--p${p+1})"`;
  const u=unvisited();
  m.innerHTML=`<div class="stack"><div class="card"><h2 class="d">${S.done?"Final count":"Live count"}</h2>
- <div class="sg"><div class="lbl">Points</div><div class="lbl" ${col(0)}>${esc(pn(0))}</div><div class="lbl" ${col(1)}>${esc(pn(1))}</div>
+ <div class="sg"><div class="lbl">Stars</div><div class="lbl" ${col(0)}>${esc(pn(0))}</div><div class="lbl" ${col(1)}>${esc(pn(1))}</div>
   <div>Property · ${h[0]} / ${h[1]} stations</div><div class="num">${r.prop[0]}</div><div class="num">${r.prop[1]}</div>
   <div>Line majorities</div><div class="num">${r.ch[0]}</div><div class="num">${r.ch[1]}</div>${majorities().rows.map(x=>`<div class="small muted" style="padding-left:10px">${esc(x.m.n)} · ${x.c[0]} / ${x.c[1]} of ${x.m.ids.length} · worth ${x.m.pts}</div><div class="small num muted">${x.a}</div><div class="small num muted">${x.b}</div>`).join("")}
-  <div>Chips earned ÷ 20</div><div class="num">${r.cr[0]}</div><div class="num">${r.cr[1]}</div>
+  <div>Monies earned ÷ 20</div><div class="num">${r.cr[0]}</div><div class="num">${r.cr[1]}</div>
   <div>Bonus stars</div><div class="num">${r.stars[0]}</div><div class="num">${r.stars[1]}</div>
   <div class="d">Total</div><div class="big num" ${col(0)}>${r.tot[0]}</div><div class="big num" ${col(1)}>${r.tot[1]}</div></div>
  <div class="small"><b>${esc(pn(0))}:</b> ${r.names[0].join(", ")||"no stars"}<br><b>${esc(pn(1))}:</b> ${r.names[1].join(", ")||"no stars"}</div>
@@ -2567,10 +2568,10 @@ function renderOv(){
  if(howto){ov.hidden=false;ov.className="ov";ov.removeAttribute("data-act");
   ov.innerHTML=`<div class="howto"><div class="lbl">How a hop works</div><h2 class="d">You take turns. Every hop.</h2><ol>
   <li><b>Doors close.</b> Up picks the direction: tap a neighbouring station on the map or in the list. The app draws Up a card. Up swaps every hop.</li>
-  <li><b>Play the card.</b> Train cards finish before the doors open. Platform cards happen at the next station. Pick Safe (×1) or All-in (×2, a miss costs 3 chips).</li>
+  <li><b>Play the card.</b> Train cards finish before the doors open. Platform cards happen at the next station. Pass it and you bank its monies; fail it and you lose half of them.</li>
   <li><b>Doors open.</b> Pass the card and you may buy the station at its price. Fail, veto, or pass on buying: it goes to auction, both of you bidding. Big hubs always auction.</li>
   <li><b>Their station:</b> pass the card there and it's yours. Or buy it out for double its value, capped at ${TKO_CAP}. No rent.</li>
-  <li><b>Gold stations</b> are sealed: whoever is Up opens the challenge there, after the card. Fail it and it stays sealed; the other player's attempt pays double. Pay ${HIJACK} chips to Hijack a hop and stay Up out of turn. Most points at ${esc(S.stop)} wins: stations, longest chain, chips, bonus stars.</li></ol>
+  <li><b>Gold stations</b> are sealed: whoever is Up opens the challenge there, after the card. Fail it and it stays sealed; the other player's attempt pays double. Pay ${HIJACK} monies to Hijack a hop and stay Up out of turn. Most stars at ${esc(S.stop)} wins: stations, longest chain, monies, bonus stars.</li></ol>
   <button class="ink bigbtn" data-act="howtoclose">Got it</button></div>`;return}
  if(reveal&&now()<revealUntil){
   const r=reveal;ov.hidden=false;ov.className="ov";ov.setAttribute("data-act","closereveal");
@@ -2606,7 +2607,7 @@ function runReplay(){
  drawShow({st,cur:null,up:0},{},{t:"The day, station by station",s:H.length+" claims"});
  const step=()=>{
   if(showMode!=="replay")return;
-  if(i>=H.length){drawShow({st,cur:null,up:0},{},{t:"Final board",s:"Most points wins"});return}
+  if(i>=H.length){drawShow({st,cur:null,up:0},{},{t:"Final board",s:"Most stars wins"});return}
   const e=H[i++];st[e.id].o=e.o;st[e.id].vis=true;
   drawShow({st,cur:e.id,up:e.o},{pops:[e.id]},{t:pn(e.o)+" takes "+ST[e.id].n,s:hhmm(e.t)});
   showTimer=setTimeout(step,900);
@@ -2702,8 +2703,10 @@ document.addEventListener("click",e=>{
   case"tfail":act0(()=>finishFor(p,"fail",sp.tally.failOn));return;
   case"strike":act0(()=>{o.strikes++;if(sp.hold)o.hStart=null;if(o.strikes>=sp.strikes.max)finishFor(p,"fail",o.strikes+" × "+sp.strikes.label.toLowerCase())});return;
   case"sreset":act0(()=>{o.resetAt=S.stops;log(sp.resetLabel+": back to zero.")});return;
+  case"decl":act0(()=>{o.declared=+D.n;log(pn(p)+" declares "+o.declared+" takes.")});return;
+  case"bonus":act0(()=>{o.bonus=!o.bonus});return;
   case"throwin":act0(()=>{o.strikes++;o.tally++;if(o.tally>=sp.throws.target)finishFor(p,"win",o.tally+" in "+o.strikes+" throws.");else if(o.strikes>=sp.throws.max)finishFor(p,"fail","Out of throws.")});return;
-  case"throwout":act0(()=>{o.strikes++;if(o.strikes>=sp.throws.max)finishFor(p,"fail","Out of throws.")});return;
+  case"throwout":act0(()=>{o.strikes++;if(sp.throws.row)o.tally=0;if(o.strikes>=sp.throws.max)finishFor(p,"fail","Out of throws.")});return;
   case"check":act0(()=>{const i=+D.i;if(o.list.includes(i))o.list=o.list.filter(x=>x!==i);else o.list.push(i);const tg=sp.listTarget||sp.list.length;const reqOk=!(sp.req||[]).some(r=>!o.list.includes(r));if(o.list.length>=tg&&reqOk)finishFor(p,"win",o.list.length+" of "+sp.list.length+".")});return;
   case"handsdone":act0(()=>{if(o.hands==null)return;finishFor(p,o.hands>=sp.hands?"win":"fail",o.hands+" hands.")});return;
   case"wstart":act0(()=>{o.wStart=now()});return;
@@ -2773,30 +2776,30 @@ function xpSteps(){return MODE==="teams"?teamsXpSteps():classicXpSteps()}
 function classicXpSteps(){
  const X=CITY.xp,P=X.path,T0=CARD.T0,MR=LOCKS[X.sealed],hub=ST[START_ID].p===4;
  return [
-  {t:CITY.copy.title,b:CITY.copy.board+" Two players, one phone, one day. Most points at the stop wins.",
+  {t:CITY.copy.title,b:CITY.copy.board+" Two players, one phone, one day. Most stars at the stop wins.",
    scene:()=>({st:blankSt(),sweep:1})},
   {t:"You take turns, every hop",b:"One of you is up and plays. The other films. Up picks the next stop, and the roles swap at every hop.",w:"turn",
    scene:w=>{const k=w.k||0,own={};for(let j=1;j<=k;j++)own[P[j]]=(j-1)%2;return {st:xst(own),cur:P[k],next:P[k+1],up:k%2,pops:k?[P[k]]:[],focus:[P[k],P[k+1]],z:2.6}}},
-  {t:"A card every time the doors close",b:"Up draws a card: a Take, a Stunt or a Gambit. Train cards finish before the doors open. Platform cards happen at the next stop. Walk or bike a hop and you only draw platform cards.",
+  {t:"A card every time the doors close",b:"Up draws a card: a Take or a Stunt. Train cards finish before the doors open. Platform cards happen at the next stop. Walk or bike a hop and you only draw platform cards.",
    scene:()=>({st:xst(),cur:X.card[0],next:X.card[1],up:0,focus:X.card,z:2.6}),
    over:()=>cardFace("Take",T0.n,`<p class="small">${esc(T0.d)}</p>`)},
-  {t:"Call your stakes on camera",b:"Before you start, say Safe or All-in. Tap them to see the difference.",w:"stakes",
+  {t:"Win it, or pay for it",b:"Pass the card and you bank its chips. Fail it and you lose half of them, and the other player gets first option on the station.",
    scene:()=>({st:xst(),cur:X.card[0],next:X.card[1],up:0,focus:X.card,z:2.6})},
   {t:"Pass it, and you can buy the stop",b:"Pass the card and you get first option on the station at its price: 1, 2 or 4 chips.",
    scene:()=>({st:xst({[X.buy.id]:0}),cur:X.buy.id,up:0,pops:[X.buy.id],floats:[{id:X.buy.id,t:X.buy.float,c:"var(--p1)"}],focus:X.buy.focus,z:2.4})},
-  {t:"Fail it, and it goes to bidding",b:"Fail or veto the card, or arrive at a 4-point hub, and nobody can buy it outright. Either of you can bid in steps of 1, 5 or 10, or leave it unowned."+(hub?" "+ST[START_ID].n+" is a hub, so the day opens with a bid.":"")+" Try it.",w:"bid",
+  {t:"Fail it, and it goes to bidding",b:"Fail or veto the card, or arrive at a 4-star hub, and nobody can buy it outright. Either of you can bid in steps of 1, 5 or 10, or leave it unowned."+(hub?" "+ST[START_ID].n+" is a hub, so the day opens with a bid.":"")+" Try it.",w:"bid",
    scene:w=>({st:xst(Object.assign({},X.bid.prior,w.sold!=null?{[X.bid.id]:w.sold}:{})),cur:X.bid.id,up:1,pops:w.sold!=null?[X.bid.id]:[],focus:X.bid.focus,z:2.4})},
   {t:"Take their stations",b:"Pass a card at a stop they own and it's yours, free. No pass? You can still buy it out for double its value, never more than 10.",w:"buyout",
    scene:()=>({st:xst(X.take.st),cur:X.take.cur,up:0,pops:[X.take.cur],focus:X.take.focus,z:2.4})},
   {t:capFirst(numWord(LOCK_IDS.length))+" sealed stations",b:"Gold stations hold a challenge you only see on the platform. Win it for the station and a payout. Fail it and it stays sealed, and the other player's try there pays double.",
    scene:()=>({st:xst(),hl:LOCK_IDS}),over:()=>cardFace("Locked",MR.n,`<p class="small">${esc(MR.d)} ${esc(MR.c)}</p>`)},
-  {t:"Hijack a hop",b:"Before the doors close, whoever would be filming can pay 5 chips to stay up. That's how you reach a sealed station that would land on the other player's turn.",
+  {t:"Hijack a hop",b:"Before the doors close, whoever would be filming can pay 5 monies to stay up. That's how you reach a sealed station that would land on the other player's turn.",
    scene:()=>({st:xst(X.hijack.st),cur:X.hijack.cur,next:X.hijack.next,up:1,hl:[X.hijack.next],focus:[X.hijack.cur,X.hijack.next],z:2.6})},
   {t:"Curses, from behind the camera",b:"Each time the other player gains a station, you draw a curse. Play it while you're the one filming. Tap one to read it.",w:"curses",
    scene:()=>({st:xst(X.curses)})},
-  {t:"A layover every three hours",b:"Wherever you are, a rider from the last train picks where you eat. 25 minutes, no chips, no cards, and card timers pause.",
+  {t:"A layover every three hours",b:"Wherever you are, a rider from the last train picks where you eat. 25 minutes, no monies, no cards, and card timers pause.",
    scene:()=>({st:xst(X.layover.st),cur:X.layover.cur,up:0,focus:X.layover.focus,z:2.4})},
-  {t:"Most points at the stop wins",b:"Every station scores its price. Own more of an area than the other player and you take its bonus. Chips you earned add a point per 20, and bonus stars land at the count. Tap one.",w:"lines",
+  {t:"Most stars at the stop wins",b:"Every station scores its price. Own more of an area than the other player and you take its bonus. Monies you earned add a star per 20, and bonus stars land at the count. Tap one.",w:"lines",
    scene:w=>({st:xst(X.split),hl:MAJ[w.line??0].ids})},
  ];
 }
@@ -2804,10 +2807,9 @@ function xpWidget(k,w){
  if(MODE==="teams"&&typeof teamsXpWidget==="function"){const t=teamsXpWidget(k,w);if(t!=null)return t}
  const N=MODE==="classic"&&typeof S!=="undefined"&&S?[esc(pn(0)),esc(pn(1))]:["Player 1","Player 2"],XPATH=CITY.xp.path;
  if(k==="turn"){const i=w.k||0,up=i%2;return `<div class="xw-turn">${[0,1].map(p=>`<div class="xw-pl p${p+1}${p===up?" on":""}">${N[p]}<small>${p===up?"up":"films"}</small></div>`).join("")}<button class="ink" data-act="xpw" data-k="turn">${i<3?"Next hop":"Start over"}</button></div><div class="xw-msg">Hop ${i+1}: ${N[up]} rides ${esc(ST[XPATH[i]].n)} to ${esc(ST[XPATH[i+1]].n)} while ${N[1-up]} films.</div>`}
- if(k==="stakes"){const v=w.stake||"safe";return `<div class="xw-seg"><button data-act="xpw" data-k="stake" data-v="safe" aria-pressed="${v==="safe"}">Safe</button><button data-act="xpw" data-k="stake" data-v="allin" aria-pressed="${v==="allin"}">All-in</button></div><dl class="xw-out"><dt>Pass</dt><dd>${v==="safe"?"10 chips":"20 chips"}, and first option on the station</dd><dt>Fail</dt><dd>${v==="safe"?"The station goes to bidding":"The station goes to bidding, and "+N[1]+" gets 3 of your chips"}</dd></dl>`}
  if(k==="bid"){const bk=[8,12],bid=w.bid||0,hi=w.hi??null;
   if(w.sold!=null)return `<div class="xw-msg"><b style="color:var(--p${w.sold+1})">${N[w.sold]}</b> buys ${esc(ST[CITY.xp.bid.id].n)} for ${w.paid}. Their block goes up on the map.</div><button data-act="xpw" data-k="again">Bid again</button>`;
-  return `<div class="xw-hi"><b>${bid||"–"}</b><span>${hi==null?"No bids yet. Either of you opens.":N[hi]+" leads"}</span></div>${[0,1].map(p=>`<div class="bidrow"><b style="color:var(--p${p+1})">${N[p]}</b>${[1,5,10].map(n=>`<button class="p${p+1}" data-act="xpw" data-k="bid" data-p="${p}" data-n="${n}" ${hi===p||bid+n>bk[p]?"disabled":""}>${bid+n}</button>`).join("")}</div>`).join("")}${hi!=null?`<button class="ink" data-act="xpw" data-k="sold">${N[1-hi]} passes: sold</button>`:""}<div class="small muted">${N[0]} has ${bk[0]} chips, ${N[1]} has ${bk[1]}. You can't bid more than you have.</div>`}
+  return `<div class="xw-hi"><b>${bid||"–"}</b><span>${hi==null?"No bids yet. Either of you opens.":N[hi]+" leads"}</span></div>${[0,1].map(p=>`<div class="bidrow"><b style="color:var(--p${p+1})">${N[p]}</b>${[1,5,10].map(n=>`<button class="p${p+1}" data-act="xpw" data-k="bid" data-p="${p}" data-n="${n}" ${hi===p||bid+n>bk[p]?"disabled":""}>${bid+n}</button>`).join("")}</div>`).join("")}${hi!=null?`<button class="ink" data-act="xpw" data-k="sold">${N[1-hi]} passes: sold</button>`:""}<div class="small muted">${N[0]} has ${bk[0]} monies, ${N[1]} has ${bk[1]}. You can't bid more than you have.</div>`}
  if(k==="buyout")return `<div class="xw-table"><span>Worth 1</span><b>buy out for 2</b><span>Worth 2</span><b>buy out for 4</b><span>Worth 4</span><b>buy out for 8</b><span>Gilded</span><b>10, and a pass can't take it</b></div>`;
  if(k==="curses"){const c=CURSES.find(x=>x.k===(w.curse||"rush"));return `<div class="xw-chips">${CURSES.map(x=>`<button data-act="xpw" data-k="curse" data-v="${x.k}" aria-pressed="${x.k===c.k}">${x.n}</button>`).join("")}</div><div class="xw-msg"><b>${c.n}.</b> ${esc(c.eff)} <span class="muted">Costs ${c.cost}.</span></div>`}
  if(k==="lines"){const g=w.line??0,m=MAJ[g],st=xst(CITY.xp.split),c=[0,1].map(p=>m.ids.filter(id=>st[id].o===p).length),win=c[0]>c[1]?0:c[1]>c[0]?1:null;
@@ -2833,7 +2835,7 @@ function xpDraw(jump){
  el.querySelector(".xp-dots").innerHTML=steps.map((x,i)=>`<button class="xp-dot${i===xp.i?" on":i<xp.i?" done":""}" data-act="xpgo" data-i="${i}" aria-label="Step ${i+1}: ${esc(x.t)}"></button>`).join("");
  el.querySelector(".xp-x").textContent=xp.mode==="help"?"Skip":"Close";
  el.querySelector(".xp-cap").innerHTML=`<div class="xp-n">${xp.i+1} of ${n}</div><h2>${esc(s.t)}</h2><p>${s.b}</p>${s.w?`<div class="xw">${xpWidget(s.w,w)}</div>`:""}`;
- el.querySelector(".xp-nav").innerHTML=`<button data-act="xpprev" ${xp.i?"":"disabled"}>Back</button><button data-act="xpauto" aria-pressed="${xp.auto}">${xp.auto?"Pause":"Play"}</button><button data-act="xprec">Record</button><button class="ink" data-act="xpnext">${xp.i<n-1?"Next":xp.mode==="help"?"Start playing":"Done"}</button>`;
+ el.querySelector(".xp-nav").innerHTML=`<button data-act="xpprev" ${xp.i?"":"disabled"}>Back</button><button data-act="xpauto" aria-pressed="${xp.auto}">${xp.auto?"Pause":"Play"}</button><button class="ink" data-act="xpnext">${xp.i<n-1?"Next":xp.mode==="help"?"Start playing":"Done"}</button>`;
  el.querySelector(".xp-over").innerHTML=s.over?`<div class="xp-card">${s.over()}</div>`:"";
  requestAnimationFrame(()=>xpScene(s,w,jump));
  const bar=el.querySelector(".xp-bar i");bar.style.animation="none";void bar.offsetWidth;bar.style.animation=xp.auto?`xpbar ${XP_MS}ms linear forwards`:"none";
@@ -2875,6 +2877,7 @@ function xpWidgetAct(D){
  if(D.k==="dpick")w.pick=+D.v;
  if(D.k==="dnext"){w.q=(w.q||0)+1;w.pick=null}
  if(D.k==="line")w.line=+D.v;
+ if(D.k==="star")w.star=+D.v;
  xpDraw(false);
 }
 addEventListener("keydown",e=>{if(!xp)return;if(e.key==="ArrowRight")xpGo(xp.i+1);if(e.key==="ArrowLeft")xpGo(xp.i-1);if(e.key==="Escape")xpClose()});
@@ -2983,16 +2986,17 @@ const tMetaCols=()=>teamList().map((t,i)=>t.col||T_DEFCOL[i]);
 const TKEY="turf.teams.game";
 const TEAM_DECK=()=>CARDS.filter(c=>!c.duel).map(c=>c.id);
 const TM={phone:null,code:null,relay:"hivemq",meta:null,my:null,teams:{},net:"off",keys:null,R:null,tab:"map",sel:null,pubT:null,heard:{},heardRev:{},reveal:null,revealUntil:0,toast:null,setup:null,join:null,lastOwn:null,show:null};
-function teamsSaved(){const g=lsGet(TKEY);if(!g||!g.meta||!g.code)return null;const t=g.meta.teams.find(x=>x.id===g.my);return {label:`${(CITIES[g.meta.city]||{}).name||""} · game ${g.code}${t?" · Team "+t.name:""}`,city:g.meta.city}}
+function teamsSaved(){const g=lsGet(TKEY);if(!g||!g.meta||!g.code)return null;const t=g.meta.teams.find(x=>x.id===g.my);return {label:g.relay==="local"?`${(CITIES[g.meta.city]||{}).name||""} · one phone, ${g.meta.teams.length} players`:`${(CITIES[g.meta.city]||{}).name||""} · game ${g.code}${t?" · Team "+t.name:""}`,city:g.meta.city}}
 function tSave(){lsSet(TKEY,{code:TM.code,relay:TM.relay,meta:TM.meta,my:TM.my,teams:TM.teams})}
 const me=()=>TM.teams[TM.my];
+const tLocal=()=>TM.relay==="local";   // one phone, everyone: no relay, pass the phone between players
 const teamList=()=>TM.meta?TM.meta.teams:[];
 const tIdx=id=>teamList().findIndex(t=>t.id===id);
-const tInfo=id=>teamList().find(t=>t.id===id)||{name:"?",mates:["",""]};
+const tInfo=id=>teamList().find(t=>t.id===id)||{name:"?",mates:[]};
 const tName=id=>"Team "+tInfo(id).name;
 const tCol=id=>`var(--p${tIdx(id)+1})`;
 const mateName=(T,i)=>tInfo(T.id).mates[i]||("Player "+(i+1));
-const upName=T=>mateName(T,T.mate),camName=T=>mateName(T,1-T.mate);
+const upName=T=>tInfo(T.id).name,camName=T=>tInfo(T.id).name;
 const tLocked=()=>!!TM.meta&&(TM.meta.done||now()>=TM.meta.stopTs);
 const tMinsLeft=()=>TM.meta?Math.max(0,Math.round((TM.meta.stopTs-now())/60000)):0;
 const tClockLeft=()=>{const ml=tMinsLeft();return ml>=60?Math.floor(ml/60)+"h "+String(ml%60).padStart(2,"0")+"m":ml+" min"};
@@ -3059,7 +3063,7 @@ function tEv(e){const T=me();e.id=T.id+"."+rid(7);e.t=now();T.ev.push(e);tInvali
 // ---------- sync ----------
 function tPublishSoon(){clearTimeout(TM.pubT);TM.pubT=setTimeout(tPublish,120)}
 async function tPublish(){
- if(!TM.R||!TM.keys)return;const T=me();
+ if(tLocal()||!TM.R||!TM.keys)return;const T=me();
  if(TM.meta)TM.R.publish(TM.keys.base+"/meta",await sealMsg(TM.keys.key,{k:"meta",meta:TM.meta}),true);
  if(T)TM.R.publish(TM.keys.base+"/t/"+T.id,await sealMsg(TM.keys.key,{k:"team",team:T}),true);
  // the phone that started the game also carries every team nobody has picked up yet, so joiners can find them
@@ -3092,6 +3096,7 @@ function tAfterSync(){
 }
 async function tConnect(){
  if(TM.R){TM.R.close();TM.R=null}
+ if(tLocal()){TM.net="local";return}
  try{TM.keys=await gameKeys(TM.code)}catch(e){TM.net="insecure";tRender();return}
  TM.R=new Relay(relayUrl(TM.relay),TM.keys.base+"/#",(t,b)=>tOnMsg(t,b),s=>{TM.net=s;if(s==="live"){TM.heardRev={};tPublish();clearTimeout(TM.bfT);TM.bfT=setTimeout(tBackfill,3500)}tRenderNet()});
  TM.R.connect();
@@ -3110,7 +3115,7 @@ function tStartHop(to){
  if(T.boards>0)T.mate=1-T.mate;
  T.boards++;
  T.hop={to,from:T.cur,at:now(),arrived:false,settled:false,first:null,card:null,lock:false};
- tLog(upName(T)+" is up. "+ST[T.cur].n+" to "+ST[to].n+".");
+ tLog(ST[T.cur].n+" to "+ST[to].n+".");
  if(tSealed(to)){T.hop.lock=true;tLog(ST[to].n+" is sealed. The challenge opens on the platform; the card is for chips.")}
  if(T.open){T.hop.card="cont";tLog("Still on "+spec(T.open).n+". No new card until it settles.")}
  else tDrawCard();
@@ -3139,8 +3144,8 @@ function tOpenCard(id){
  const road=f.road&&c.fam!=="Gambit";if(road){f.road=false;tLog("Roadblock: a pass on this card won't win the station.")}
  const second=!!f.second;if(second){f.second=false;tLog("Second Opinion: a stranger has to agree before this card counts.")}
  const rush=!!f.rush;if(rush){f.rush=false;tLog("Rush Hour: time limit halved.")}
- T.open={id,lock:false,drawnAt:now(),drawStops:T.stops,stakes:c.fam==="Gambit"?"gambit":null,rush,road,second,started:false,tally:0,strikes:0,list:[],declared:null};
- tLog(upName(T)+" draws "+c.n+".");
+ T.open={id,lock:false,drawnAt:now(),drawStops:T.stops,stakes:"set",rush,road,second,started:false,tally:0,strikes:0,list:[],declared:null,listItems:cardListFor(c,T.hop?T.hop.to:T.cur)};
+ tLog("You draw "+c.n+".");
 }
 function tRedraw(){const T=me(),o=T.open;if(!o||o.lock||o.started)return;T.open=null;T.pile.unshift(o.id);tLog(CARD[o.id].n+" can't be played here. Back to the bottom, no penalty.");if(T.hop&&!T.hop.arrived)tDrawCard()}
 function tOpenLock(id){
@@ -3156,7 +3161,6 @@ function tOpenLock(id){
 function tCanStart(o){
  if(!o||o.started)return {ok:false};
  const sp=spec(o),T=me();
- if(!o.stakes)return {ok:false,why:"Pick Safe or All-in."};
  if(sp.declare&&!o.declared)return {ok:false,why:"Declare a number first."};
  if(sp.ride&&!o.lock&&T.hop&&T.hop.arrived&&!sp.span)return {ok:false,why:"Start it on the train."};
  if(o.lock&&sp.bridge&&!o.bridgeBoarded)return {ok:false,why:sp.bridge.need};
@@ -3164,7 +3168,7 @@ function tCanStart(o){
  if(o.id==="G3"&&!o.lock&&(!o.target||!o.deadline))return {ok:false,why:"Name the station and the minute."};
  if(o.id==="G3"&&!o.lock&&o.deadline<=now())return {ok:false,why:"Pick a minute that hasn't passed."};
  if(o.id==="S1"&&!o.lock&&!(o.est>0))return {ok:false,why:"Enter the stranger's estimate."};
- if(!o.lock&&STATION_STUNTS.includes(o.id)&&!(T.hop&&T.hop.arrived)&&o.id!=="S9")return {ok:false,why:"Start it on the platform when you arrive."};
+ if(!o.lock&&STATION_STUNTS.includes(o.id)&&!(T.hop&&T.hop.arrived))return {ok:false,why:"Start it on the platform when you arrive."};
  return {ok:true};
 }
 function tBegin(o){
@@ -3192,6 +3196,7 @@ function tArrive(){
  T.cur=id;T.stops++;h.arrived=true;h.arrivedAt=now();
  const fresh=!T.vis[id];T.vis[id]=1;
  tLog("Doors open at "+ST[id].n+"."+(fresh&&Object.keys(T.vis).length===STATIONS.length?" "+CITY.copy.reached:""));
+ if(tSealed(id))tTip("sealed","Sealed station","Gold stations hold a challenge you only see on the platform. Win it for the station and a payout. Fail it and it stays sealed, and the next team to try it gets double. No curse for failing one.");
  if(T.fx.silent>0){T.fx.silent--;if(!T.fx.silent)tLog("Silent Car is over.")}
  const o=T.open;if(o&&o.clockOnArrive){o.tEnd=now()+1800000;o.clockOnArrive=false;tLog(CARD[o.id].n+": 30 minutes from now.")}
  // after a lost duel, the next station reached can't be bought, challenged for or bid on
@@ -3217,6 +3222,7 @@ function tMaybeAuction(){
  const open=tOpenAuction(id);if(open){h.auc=open.id;return}
  const e=tEv({k:"auction",s:id,end:now()+AUC_MS});h.auc=e.id;
  tLog(ST[id].n+" goes to auction. Every team can bid for two minutes.");
+ tTip("auction","Auction","Fail or veto a card at an unowned station and it goes up for auction. Every team bids from their own phone for two minutes, in steps of 1, 5 or 10. Highest bid wins and pays the bank.");
 }
 function tSetFirst(out){
  const T=me(),h=T.hop;if(!h||h.settled)return;
@@ -3235,7 +3241,8 @@ function tBankrunTick(win){const T=me(),b=T.fx.bankrun;if(!b)return;if(win)b.don
 function tDrawCurse(why){const T=me();if(!T.cpile.length)T.cpile=shuffle(CURSES.flatMap((c,i)=>[i,i]));const c=T.cpile.pop();
  // four in hand is the most: a fifth pushes out the oldest
  if(T.hand.length>=4){const o=T.hand.shift();tLog("Four curses is the most you can hold. "+CURSES[o].n+", your oldest, is discarded.")}
- T.hand.push(c);tLog(why+". You draw a curse: "+CURSES[c].n+".");tToast("You draw "+CURSES[c].n,CURSES[c].eff+(CURSES[c].k==="gilded"?" Play it from the Curses screen.":" Play it on any team from the Curses screen."))}
+ T.hand.push(c);tLog(why+". You draw a curse: "+CURSES[c].n+".");
+ tTip("curse","Failure creates curses","Fail a card and you draw a random curse to give you an edge on your opponents. Play it on any team, any time, from the Curses screen: it lands on their phone.");tToast("You draw "+CURSES[c].n,CURSES[c].eff+(CURSES[c].k==="gilded"?" Play it from the Curses screen.":" Play it on any team from the Curses screen."))}
 function tFinish(out,note){
  const T=me(),o=T.open;if(!o)return;const sp=spec(o);
  if(out==="win"&&!o.lock&&o.second&&!o.secondDone){o.awaitSecond=true;return}
@@ -3244,20 +3251,21 @@ function tFinish(out,note){
  if(o.lock){const id=o.id;
   if(T.park){T.open=T.park;T.park=null;tLog(spec(T.open).n+" resumes.")}
   if(out==="win"){tClaim(id,"lock");T.bank+=o.pay;T.credits+=o.pay;T.stats.locks++;T.stats.cards++;tLog("You win "+ST[id].n+": "+sp.n+(note?" ("+note+")":"")+". +"+o.pay+".");if(T.hop&&T.hop.to===id)T.hop.settled=true;tFlash("Unlocked","You take "+ST[id].n+" and "+o.pay+" chips.","Locked")}
-  else{tEv({k:"lockfail",s:id});tLog("You fail "+sp.n+(note?" ("+note+")":"")+". "+ST[id].n+" stays sealed; another team's attempt pays double.");if(T.hop&&T.hop.to===id)T.hop.settled=true;tFlash("Still sealed","Another team's attempt here pays double.","Locked");tDrawCurse("You failed "+sp.n)}
+  else{tEv({k:"lockfail",s:id});tLog("You fail "+sp.n+(note?" ("+note+")":"")+". "+ST[id].n+" stays sealed; another team's attempt pays double.");if(T.hop&&T.hop.to===id)T.hop.settled=true;tFlash("Still sealed","Another team's attempt here pays double.","Locked")}
   return}
  const c=CARD[o.id],W=tWorld();
  if(out==="win"){
   let base=typeof c.r==="number"?c.r:0,gain=0;
-  if(c.cyt)base=({2:6,3:11,4:17,5:24})[o.declared]||0;
+  if(c.cyt)base=CYT_PAY[o.declared]||0;
+  if(c.bonus&&o.bonus)base+=c.bonus.chips;
   if(c.id==="G0"||c.id==="G3"){const b=T.bank;T.bank=Math.floor(b*1.5);T.credits+=T.bank-b;tLog(c.n+": bank "+b+" → "+T.bank+".")}
   const grab=(sid,how,what)=>{if(!sid||!ST[sid])return;const ow=W.own[sid];if(ow&&ow!==T.id)T.stats.tko++;if(ow!==T.id){tClaim(sid,how);tLog(what+" "+ST[sid].n+(ow&&ow!==T.id?" from "+tName(ow):"")+".")}if(T.hop&&T.hop.to===sid)T.hop.settled=true};
   if(c.id==="G1")grab(o.pickAt,"pick","You pickpocket");
   if(c.id==="G2")grab(o.emAt,"eminent","Eminent Domain:");
   if(c.id==="G4"&&o.seen&&o.seen[1])grab(o.seen[1],"grab","You smash and grab");
-  if(base>0){gain=Math.floor(base*(o.stakes==="allin"?2:1));T.bank+=gain;T.credits+=gain}
+  if(base>0){gain=base;T.bank+=gain;T.credits+=gain}
   T.stats.cards++;
-  if(c.fam!=="Gambit")tLog("You complete "+c.n+(o.stakes==="allin"?" All-in":"")+(gain?": +"+gain:"")+(note?" ("+note+")":"")+".");
+  tLog("You complete "+c.n+(gain?": +"+gain:"")+(note?" ("+note+")":"")+".");
   if(o.road&&T.hop)T.hop.road=true;
   tBankrunTick(true);tSetFirst(o.road?"blocked":"win");
   tFlash("Complete",(gain?"+"+gain+" chips.":"You complete "+c.n+".")+tStopHint(true),"Take");
@@ -3267,11 +3275,10 @@ function tFinish(out,note){
   if(c.id==="G0"||c.id==="G3"){const b=T.bank;T.bank=Math.floor(b/2);tLog("You miss "+c.n+(note?" ("+note+")":"")+": bank "+b+" → "+T.bank+".")}
   else if(c.id==="G1"){const n=Math.floor(T.bank*.3);T.bank-=n;tLog("Pickpocket missed: you lose "+n+" chips.")}
   else tLog("You fail "+c.n+(note?" ("+note+")":"")+".");
- }else if(o.stakes==="allin"){const n=Math.min(3,T.bank);T.bank-=n;tLog("You fail "+c.n+" All-in"+(note?" ("+note+")":"")+". You lose "+n+" chips.")}
- else tLog("You fail "+c.n+(note?" ("+note+")":"")+".");
+ }else{const n=Math.min(cardLoss(c,o),T.bank);T.bank-=n;o.lost=n;tLog("You fail "+c.n+(note?" ("+note+")":"")+(n?". You lose "+n+" chips.":"."))}
  tBankrunTick(false);tSetFirst("fail");
  tDrawCurse("You failed "+c.n);
- tFlash("Fail",(T.hop&&!T.hop.lock&&!T.hop.settled?tStopHint(false).trim():"")||"Missed.","Stunt");
+ tFlash("Fail",(o.lost?"−"+o.lost+" chips.":"Missed.")+(T.hop&&!T.hop.lock&&!T.hop.settled?" "+tStopHint(false).trim():""),"Stunt");
 }
 function tSettle(v,note){tFinish(v,note)}
 
@@ -3303,7 +3310,7 @@ function tProcessIncoming(){
     const said=c.k==="wrong"?"Your next stop is "+ST[e.to].n+".":(c.you||c.eff);
     tLog(tName(t.id)+" plays "+c.n+" on you. "+(ok?said:why));
     tToast(tName(t.id)+" played "+c.n+" on you",ok?said:why);}
-   if(e.k==="cack"&&!T.seen["r:"+e.ref]){const mine=T.ev.find(x=>x.id===e.ref&&x.k==="curse");if(mine){T.seen["r:"+e.ref]=1;ch=true;if(!e.ok){const c=CURSES[mine.c];T.bank+=c.chips;tLog(c.n+" on "+tName(t.id)+" fizzled. "+c.chips+" chips back.");tToast(c.n+" fizzled",tName(t.id)+" had already moved on or been picked for. "+c.chips+" chips back.")}}}
+   if(e.k==="cack"&&!T.seen["r:"+e.ref]){const mine=T.ev.find(x=>x.id===e.ref&&x.k==="curse");if(mine){T.seen["r:"+e.ref]=1;ch=true;if(!e.ok){const c=CURSES[mine.c];T.bank+=c.chips;tLog(c.n+" on "+tName(t.id)+" fizzled. "+c.chips+" monies back.");tToast(c.n+" fizzled",tName(t.id)+" had already moved on or been picked for. "+c.chips+" monies back.")}}}
   }}
  tInvalidate();const W=tWorld();
  // auctions: the winning team's phone pays once the bidding has closed
@@ -3333,7 +3340,7 @@ function tProcessIncoming(){
 function tBidBlock(A){
  const T=me();
  if(!A||!A.open)return "The bidding has closed.";
- if(TM.net!=="live")return "Reconnect to bid.";
+ if(TM.net!=="live"&&!tLocal())return "Reconnect to bid.";
  if(tLocked())return "The hard stop has passed.";
  if(T.fx.jury)return "Jury Duty: no bidding until the take is recorded.";
  if(T.coolS===A.s)return "Cooling off after the lost duel: you can't bid on this one.";
@@ -3343,7 +3350,7 @@ function tBid(aid,n){
  const T=me(),A=tWorld().auctions.find(x=>x.id===aid),why=tBidBlock(A);if(why)return why;
  if(A.high&&n<=A.high.n)return "Bid more than "+A.high.n+".";
  if(A.high&&A.high.team===T.id)return "You're already the high bid.";
- const cost=n*(T.fx.fare?2:1);if(cost>T.bank)return "You have "+T.bank+" chips"+(T.fx.fare?" (Double Fare doubles it)":"")+".";
+ const cost=n*(T.fx.fare?2:1);if(cost>T.bank)return "You have "+T.bank+" monies"+(T.fx.fare?" (Double Fare doubles it)":"")+".";
  tEv({k:"bid",ref:aid,n});tLog("You bid "+n+" for "+ST[A.s].n+".");return null;
 }
 function tAucRow(A){
@@ -3369,7 +3376,7 @@ function tBoardQ(id){
  if(kind==="bl"){const sid=p[0],ks=Object.keys(LINE_PATHS).filter(k=>LINE_PATHS[k].includes(sid));if(!ST[sid]||ks.length!==1)return null;const others=Object.keys(LINE_PATHS).filter(k=>k!==ks[0]);if(others.length<3)return null;
   return {q:"Which line stops at "+ST[sid].n+"?",a:CITY.lines[ks[0]].name,w:tShuf(others,tRng(id)).slice(0,3).map(k=>CITY.lines[k].name)}}
  if(kind==="bh"){const R=tRng(id),hubs=STATIONS.filter(x=>x.p===4),non=STATIONS.filter(x=>x.p<4);if(!hubs.length||non.length<3)return null;const h=hubs[Math.floor(R()*hubs.length)];
-  return {q:"Which of these stations is a 4-point hub on the board?",a:h.n,w:tShuf(non,R).slice(0,3).map(x=>x.n)}}
+  return {q:"Which of these stations is a 4-star hub on the board?",a:h.n,w:tShuf(non,R).slice(0,3).map(x=>x.n)}}
  return null;
 }
 function tBoardQId(R){
@@ -3458,7 +3465,9 @@ function tScore(){
 const n1=x=>Math.round(x*10)/10;
 
 // ---------- layovers ----------
-const tLayDue=()=>{const T=me();return !!TM.meta&&now()-(T.layLast||TM.meta.startedAt)>=LAY_EVERY};
+// layovers come every three hours from the start of the game, for every team at the same time
+const tLayWin=()=>TM.meta?Math.floor((now()-TM.meta.startedAt)/LAY_EVERY):0;
+const tLayDue=()=>{const T=me();return !!TM.meta&&tLayWin()>=1&&(T.layWin||0)<tLayWin()};
 const tLayHere=()=>{const T=me();if(T.sz||(T.hop&&!T.hop.settled))return false;return tLayDue()};
 
 // ---------- wording for team play ----------
@@ -3466,19 +3475,15 @@ const tLayHere=()=>{const T=me();if(T.sz||(T.hop&&!T.hop.settled))return false;r
 // change hands between teams by trivia duel.
 const T_CURSE_TEXT={
  rush:["Their next card's time limit is halved.","Your next card's time limit is halved."],
- road:["Their next Take or Stunt can't win them the station. Complete it and they keep the chips, but the station goes to auction.","Your next Take or Stunt can't win you the station. Complete it and you keep the chips, but the station goes to auction."],
+ road:["Their next Take or Stunt can't win them the station. Complete it and they keep the monies, but the station goes to auction.","Your next Take or Stunt can't win you the station. Complete it and you keep the monies, but the station goes to auction."],
  wrong:["You pick their next stop from the stations next to them.","They picked your next stop."],
  fare:["Their next buy or winning bid costs double.","Your next buy or winning bid costs double."],
  gilded:["Pick a station you own. Nobody can challenge for it for the next two hours.","","Two hours"],
- second:["After they complete their next card, they have to find a stranger who agrees with a take of theirs. Three strangers disagree and the card fails.","After you complete your next card, find a stranger who agrees with a take of yours. Three strangers disagree and the card fails."],
  silent:["They may not speak to a stranger until the doors open at their second stop from now.","Don't speak to a stranger until the doors open at your second stop from now."],
- jury:["They can't buy, bid or challenge until they record a take from someone under 25 or over 65, asked, not guessed.","You can't buy, bid or challenge until you record a take from someone under 25 or over 65, asked, not guessed."],
+ jury:["They can't buy, bid or challenge a station until they record a political take from someone under 25 or over 65.","You can't buy, bid or challenge a station until you record a political take from someone under 25 or over 65."],
 };
 function tApplyTeamText(){
  for(const c of CURSES){const x=T_CURSE_TEXT[c.k];if(x){c.eff=x[0];c.you=x[1];if(x[2])c.dur=x[2]}}
- Object.assign(CARD.G1,{r:"The station is yours, whoever holds it. Miss: you lose 30% of your bank."});
- Object.assign(CARD.G2,{r:"The station is yours, free, whoever holds it."});
- Object.assign(CARD.G5,{d:"Declare how many of your next three cards you will complete: two or three.",r:"+10 chips per card completed, or lose 10"});
 }
 
 // ================= teams: screens =================
@@ -3502,30 +3507,29 @@ function tNav(info){
  if(T.duel)main=go('data-act="t-duelopen"',"Back to the trivia duel",T.duel.mode==="attack"?"For "+esc(ST[T.duel.s].n):esc(tName(T.duel.other))+" wants "+esc(ST[T.duel.s].n));
  else if(due.length&&!(h&&!h.arrived)){const D=due[0];main=go(`data-act="t-duelplay" data-ref="${D.id}"`,"Trivia duel: "+esc(tName(D.by))+" wants "+esc(ST[D.s].n),`Beat ${D.score} of ${DUEL_Q} · <span class="num" data-live="duel" data-end="${D.end}">${fmt(D.end-now())}</span> left to play`)}
  else if(tLocked())main=go('data-act="t-tab" data-t="more"',"Time: go to the count","The hard stop has passed");
- else if(T.sz)main=go('data-act="t-szend"',"Back to the game",`Layover near ${esc(ST[T.sz.id].n)}, <span id="szleft">${fmt(T.sz.end-now())}</span> left`);
- else if(h&&!h.arrived){main=go('data-act="t-arrive"',"Doors open at "+esc(ST[h.to].n),`${esc(upName(T))} riding, ${esc(viaTxt(h.from,h.to))}`);sides=due.length?side(`data-act="t-duelplay" data-ref="${due[0].id}"`,"Duel",""):side('data-act="t-tab" data-t="cards"',"Card","")}
+ else if(T.sz)main=(now()<T.sz.end?go('data-act="t-szend"',"Layover","Ask the staff about the place and the neighbourhood, then review the food. <span id=\"szleft\">"+fmt(T.sz.end-now())+"</span> left").replace('class="fgo"','class="fgo" disabled'):go('data-act="t-szend"',"Back to the game",`Layover near ${esc(ST[T.sz.id].n)} is over`));
+ else if(h&&!h.arrived){main=go('data-act="t-arrive"',"Doors open at "+esc(ST[h.to].n),esc(viaTxt(h.from,h.to)));sides=due.length?side(`data-act="t-duelplay" data-ref="${due[0].id}"`,"Duel",""):side('data-act="t-tab" data-t="cards"',"Card","")}
  else if(h&&!h.settled)main=go('data-act="t-tab" data-t="cards"',"Settle "+esc(ST[h.to].n),"You're on the platform");
- else if(tLayHere()){main=go('data-act="t-szstart"',"Start the layover",`Near ${esc(ST[T.cur].n)}. A rider picks the place, ${LAY_MIN} minutes`);sides=side('data-act="t-szskip"',"Skip","")}
+ else if(tLayHere()){main=go('data-act="t-szstart"',"Start the layover",`Every team eats now. Riders from your last train pick the place, ${LAY_MIN} minutes`)}
  else if(T.fx.wrong){const to=T.fx.wrong.to;main=go(`data-act="t-hop" data-id="${to}"`,"Doors closing: "+esc(ST[to].n),`${esc(tName(T.fx.wrong.by))} picked it with Wrong Platform · ${esc(viaTxt(T.cur,to))}`)}
  else{
   const rec=tNextRec(),cand=(TM.sel&&ADJ[T.cur].includes(TM.sel))?TM.sel:rec,W=tWorld(),ow=W.own[cand];
-  const nextUp=T.boards>0?mateName(T,1-T.mate):mateName(T,T.mate);
-  const bits=[viaTxt(T.cur,cand),esc(nextUp)+" is up"];if(tSealed(cand))bits.push("sealed");else if(ow)bits.push(ow===T.id?"yours":esc(tName(ow))+"'s");
+  const bits=[viaTxt(T.cur,cand)];if(tSealed(cand))bits.push("sealed");else if(ow)bits.push(ow===T.id?"yours":esc(tName(ow))+"'s");
   if(T.open)bits.push(esc(spec(T.open).n)+" carries on");
   main=go(`data-act="t-hop" data-id="${cand}"`,"Doors closing: "+esc(ST[cand].n),bits.join(", "));
   chips=ADJ[T.cur].filter(x=>x!==cand).map(id=>`<button class="fchip" data-act="t-pick" data-id="${id}"><b>${esc(ST[id].n)}</b><span>${esc(viaTxt(T.cur,id))}</span></button>`).join("");
-  if(rec!==cand&&tUnvisited().length)chips=`<button class="fchip hint" data-act="t-pick" data-id="${rec}"><b>Nearest new stop</b><span>${esc(ST[rec].n)}</span></button>`+chips;
+  if(rec!==cand&&tUnvisited().length)chips=`<button class="fchip hint" data-act="t-pick" data-id="${rec}"><b>Nearest new stop</b><span>${esc(ST[rec].n)}</span></button>`+monies;
  }
  return `<div class="fbottom">${info||""}${showKey?legendHTML():""}${tAucBar()}${chips?`<div class="fchips">${chips}</div>`:""}<div class="fnav sheet">${main}${sides}</div></div>`;
 }
-const netDot=()=>`<i class="net ${TM.net}" title="${{live:"Synced",connecting:"Connecting",offline:"Offline: moves sync when you're back",off:"Not connected",refused:"Relay refused",insecure:"Needs https"}[TM.net]||""}"></i>`;
+const netDot=()=>tLocal()?"":`<i class="net ${TM.net}" title="${{live:"Synced",connecting:"Connecting",offline:"Offline: moves sync when you're back",off:"Not connected",refused:"Relay refused",insecure:"Needs https"}[TM.net]||""}"></i>`;
 function tHud(){
  const T=me(),W=tWorld(),sc=tScore(),rivals=teamList().filter(t=>t.id!==T.id);
  const fx=[];for(const k of ["jury","silent","wrong","fare","road","rush","second"])if(T.fx[k]){const cu=CURSES.find(x=>x.k===k);fx.push(`<button class="fx" data-act="t-curseinfo" data-k="${k}">${cu.n}</button>`)}
  if(T.fx.cool>0||(T.hop&&T.hop.cool&&!T.hop.settled))fx.push(`<button class="fx" data-act="t-curseinfo" data-k="cool">Cooling off</button>`);
- return `<div class="fhud"><div class="fplates${rivals.length>=4?" many":""}"><div class="fp tm up" style="--tc:${tCol(T.id)}"><b>${esc(tInfo(T.id).name)}</b><span>${T.bank}</span></div>${rivals.map(t=>`<button class="frv" style="--tc:${tCol(t.id)}" data-act="t-tab" data-t="more" aria-label="${esc(tName(t.id))}: ${W.held[t.id]} stations"><i></i>${W.held[t.id]}</button>`).join("")}</div>
+ return `<div class="fhud"><div class="fplates${rivals.length>=4?" many":""}"><div class="fp tm up" style="--tc:${tCol(T.id)}"><b>${esc(tInfo(T.id).name)}</b><span>${T.bank}</span></div>${rivals.map(t=>`<button class="frv" style="--tc:${tCol(t.id)}" data-act="${tLocal()?"t-switch":"t-tab"}" data-t="${tLocal()?t.id:"more"}" aria-label="${tLocal()?"Switch to "+esc(tName(t.id)):esc(tName(t.id))+": "+W.held[t.id]+" stations"}"><i></i>${tLocal()?esc(tName(t.id).slice(0,8))+" ":""}${W.held[t.id]}</button>`).join("")}</div>
   <div class="fmenu"><button data-act="t-tab" data-t="curses" aria-label="Curses, count and settings">☰${T.hand.length?` <span class="cnt">${T.hand.length}</span>`:""}</button></div>${fx.length?`<div class="ffx">${fx.join("")}</div>`:""}
-  <div class="fclock tclock">${netDot()} ${esc(upName(T))} is up · ${tUnvisited().length} left · ${tClockLeft()} to the stop</div></div>`;
+  <div class="fclock tclock">${netDot()} ${tUnvisited().length} left · ${tClockLeft()} to the stop</div></div>`;
 }
 function tRenderNet(){for(const el of document.querySelectorAll("i.net"))el.className="net "+TM.net;}
 function tRenderMap(m){
@@ -3541,12 +3545,12 @@ function tRenderMap(m){
 }
 function tRenderTop(t){
  const T=me(),W=tWorld();
- t.innerHTML=`<div class="hud thud"><div class="pl tm up" style="--tc:${tCol(T.id)}"><span class="nm">${esc(tInfo(T.id).name)}</span><span class="role">${esc(upName(T))} up</span><span class="bank">${T.bank}</span></div><div class="trow">${teamList().filter(x=>x.id!==T.id).map(x=>`<span class="tdot" style="--tc:${tCol(x.id)}"><i></i>${W.held[x.id]}</span>`).join("")}</div></div>
+ t.innerHTML=`<div class="hud thud"><div class="pl tm up" style="--tc:${tCol(T.id)}"><span class="nm">${esc(tInfo(T.id).name)}</span><span class="bank">${T.bank}</span></div><div class="trow">${teamList().filter(x=>x.id!==T.id).map(x=>tLocal()?`<button class="tdot sw" style="--tc:${tCol(x.id)}" data-act="t-switch" data-t="${x.id}" aria-label="Switch to ${esc(tName(x.id))}"><i></i>${W.held[x.id]}</button>`:`<span class="tdot" style="--tc:${tCol(x.id)}"><i></i>${W.held[x.id]}</span>`).join("")}</div></div>
  <div class="tnav"><button class="back" data-act="t-back">‹ Back to the game</button><span></span><button data-act="t-tab" data-t="curses" aria-pressed="${TM.tab==="curses"}">Curses${T.hand.length?` <span class="cnt">${T.hand.length}</span>`:""}</button><button data-act="t-tab" data-t="more" aria-pressed="${TM.tab==="more"}">More</button></div>`;
 }
 function tHopStrip(){
  const T=me(),h=T.hop;if(!h)return "";const to=ST[h.to],from=h.from?ST[h.from]:null;
- return `<div class="strip"><div class="s-route">${from?esc(from.n)+" <i>›</i> ":""}<b>${esc(to.n)}</b></div><div class="s-meta">${h.arrived?"On the platform.":esc(viaTxt(h.from||h.to,h.to))+"."} ${esc(upName(T))} is up, ${esc(camName(T))} films.</div></div>`;
+ return `<div class="strip"><div class="s-route">${from?esc(from.n)+" <i>›</i> ":""}<b>${esc(to.n)}</b></div><div class="s-meta">${h.arrived?"On the platform.":esc(viaTxt(h.from||h.to,h.to))+"."}</div></div>`;
 }
 function tActionBar(){
  const T=me(),h=T.hop;if(tLocked()||T.sz||!h)return "";
@@ -3562,16 +3566,16 @@ function tStationPanel(id){
   if(tSealed(id)){
    const dbl=Object.keys(W.fails[id]||{}).some(x=>x!==T.id);
    if(o&&o.lock)x+=`<div class="banner" style="border-color:var(--gold)">${esc(LOCKS[id].n)} is open. Run it below.</div>`;
-   else if(o&&!spec(o).span)x+=`<div class="banner warn">${esc(spec(o).n)} is still open. Settle it (it pays chips), then open the sealed challenge.</div>`;
-   else x+=`<div class="banner" style="border-color:var(--gold)">A sealed challenge waits here. ${esc(upName(T))} opens it on camera.${dbl?" <b>Pays double:</b> another team failed it.":""}${o?" "+esc(spec(o).n)+" pauses while you try.":""}</div><button class="ink bigbtn" data-act="t-lockopen">Open the sealed challenge</button>`;
+   else if(o&&!spec(o).span)x+=`<div class="banner warn">${esc(spec(o).n)} is still open. Settle it (it pays monies), then open the sealed challenge.</div>`;
+   else x+=`<div class="banner" style="border-color:var(--gold)">A sealed challenge waits here. Open it on camera.${dbl?" <b>Pays double:</b> another team failed it.":""}${o?" "+esc(spec(o).n)+" pauses while you try.":""}</div><button class="ink bigbtn" data-act="t-lockopen">Open the sealed challenge</button>`;
   }else{
    const f=tFirstOpt(),cost=pr*fare,A=tOpenAuction(id);
    if(A)x+=`<div class="banner">${A.by===T.id?"The card failed, so ":esc(tName(A.by))+" failed a card here, so "}${esc(s.n)} is up for auction. Every team can bid from their phone until the clock runs out.</div>${tAucRow(A)}${rideOn}`;
-   else if(f==="wait")x+=`<div class="banner">${esc(upName(T))} is on ${esc(spec(o).n)}. Complete it here and you can buy ${esc(s.n)}. Fail it and the station goes to auction.</div>`;
+   else if(f==="wait")x+=`<div class="banner">You're on ${esc(spec(o).n)}. Complete it here and you can buy ${esc(s.n)}. Fail it and the station goes to auction.</div>`;
    else if(f===true&&h.cool)x+=`<div class="banner warn">Cooling off after the lost duel: no buying at ${esc(s.n)}. Buying opens again at your next station.</div>${rideOn}`;
    else if(f===true)x+=`<div class="banner">You completed the card: ${esc(s.n)} is yours to buy.</div><div class="row"><button class="tc bigbtn" style="--tc:${tCol(T.id)}" data-act="t-buy" ${T.bank<cost||T.fx.jury?"disabled":""}>Buy it for ${cost}${fare>1?" (Double Fare)":""}</button><button class="bigbtn" data-act="t-done">Leave it</button></div>${T.fx.jury?`<div class="small muted">Jury Duty: no buying until the take is recorded.</div>`:T.bank<cost?`<div class="small muted">Not enough chips.</div>`:""}`;
    else{const closed=h.auc&&W.auctions.find(a=>a.id===h.auc);
-    x+=`<div class="banner">${closed?(closed.high?esc(tName(closed.high.team))+" won it at auction for "+closed.high.n+".":"The auction closed with no bids. It stays open for the next team that completes a card here."):h.road?"Roadblock: the card paid chips but can't win the station.":h.card==="none"?"No card this hop.":"The card didn't count."}</div>${rideOn}`}
+    x+=`<div class="banner">${closed?(closed.high?esc(tName(closed.high.team))+" won it at auction for "+closed.high.n+".":"The auction closed with no bids. It stays open for the next team that completes a card here."):h.road?"Roadblock: the card paid monies but can't win the station.":h.card==="none"?"No card this hop.":"The card didn't count."}</div>${rideOn}`}
   }
  }else if(ow!==T.id){
   const cc=tCanChallenge(id),mine=tMyChallenge(id),f=tFirstOpt();
@@ -3584,15 +3588,10 @@ function tStationPanel(id){
 }
 function tOpenPanel(o){
  const sp=spec(o),fam=o.lock?"Locked":sp.fam,T=me();
- const rewardTxt=typeof sp.r==="number"?String(sp.r)+" chips":sp.r;
- let body=`<dl><dt>Do this</dt><dd>${esc(sp.d)}</dd><dt>Counts</dt><dd>${esc(sp.c)}</dd><dt>Limit</dt><dd>${esc(sp.t)}${o.rush?" <b>Halved: Rush Hour.</b>":""}</dd><dt>${o.lock?"Win":"Reward"}</dt><dd>${esc(o.lock?"The station and "+o.pay+" chips"+(o.boost>1?" (doubled after another team's fail)":"")+(o.band>1?" (behind: ×1.5)":o.band<1?" (ahead: ×0.5)":""):rewardTxt)}${!o.lock&&sp.fam!=="Gambit"?", and you can buy the station (or challenge for it) if you complete it":""}</dd>${!o.lock&&o.id==="S1"?`<dt>Landmark</dt><dd><b>${esc(o.lm||ST[T.hop?T.hop.to:T.cur].lm)}</b></dd>`:""}</dl>`;
- if(!o.lock&&sp.fam!=="Gambit"&&!o.started){
-  body+=`<div><div class="lbl" style="margin-bottom:6px">Say your stakes on camera</div><div class="stakes">
-   <button aria-pressed="${o.stakes==="safe"}" data-act="t-stake" data-k="safe">Safe<span>Pays as printed. Fail it and the station goes to auction.</span></button>
-   <button aria-pressed="${o.stakes==="allin"}" data-act="t-stake" data-k="allin">All-in<span>Pays double. Fail it and you also lose 3 chips.</span></button></div></div>`;
- }
+ const rewardTxt=sp.rtxt||(typeof sp.r==="number"?String(sp.r)+" monies":sp.r);
+ let body=`<dl><dt>Do this</dt><dd>${esc(sp.d)}</dd><dt>Counts</dt><dd>${esc(sp.c)}</dd><dt>Limit</dt><dd>${esc(sp.t)}${o.rush?" <b>Halved: Rush Hour.</b>":""}</dd><dt>${o.lock?"Win":"Reward"}</dt><dd>${esc(o.lock?"The station and "+o.pay+" monies"+(o.boost>1?" (doubled after another team's fail)":"")+(o.band>1?" (behind: ×1.5)":o.band<1?" (ahead: ×0.5)":""):rewardTxt)}${!o.lock?". Complete it and you can buy the station (or challenge for it)":""}</dd>${!o.lock?`<dt>Fail</dt><dd>Lose ${sp.cyt?"the monies you declared":Math.ceil((typeof sp.r==="number"?sp.r:0)/2)+" monies"}, the station goes to auction, and you draw a curse</dd>`:""}${!o.lock&&o.id==="S1"?`<dt>Landmark</dt><dd><b>${esc(o.lm||ST[T.hop?T.hop.to:T.cur].lm)}</b></dd>`:""}</dl>`;
  if(!o.started){
-  if(!o.lock&&sp.declare)body+=`<div><label class="lbl" for="tdecl">Declare</label><select id="tdecl" data-in="decl"><option value="">Choose…</option>${sp.declare.map(n=>`<option ${o.declared==n?"selected":""}>${n}</option>`).join("")}</select></div>`;
+  if(!o.lock&&sp.declare)body+=`<div><div class="lbl" style="margin-bottom:6px">Declare how many takes</div><div class="stakes decl">${sp.declare.map(n=>`<button aria-pressed="${o.declared==n}" data-act="t-decl" data-n="${n}">${n} takes<span>+${CYT_PAY[n]} if you get them · −${CYT_PAY[n]} if you don't</span></button>`).join("")}</div></div>`;
   if(!o.lock&&o.id==="S1")body+=`<div><label class="lbl" for="test">Stranger's estimate (minutes)</label><input id="test" data-in="est" type="number" inputmode="numeric" min="1" max="60" value="${o.est||""}"></div>`;
   if(!o.lock&&o.id==="G1")body+=`<div><label class="lbl" for="tstunt">Stunt</label><select id="tstunt" data-in="stunt"><option value="">Choose…</option>${STATION_STUNTS.map(id=>`<option value="${id}" ${o.stunt===id?"selected":""}>${esc(CARD[id].n)}</option>`).join("")}</select></div>${o.stunt?`<div class="small"><b>${esc(CARD[o.stunt].n)}:</b> ${esc(CARD[o.stunt].d)} Counts: ${esc(CARD[o.stunt].c)}</div>`:""}`;
   if(!o.lock&&o.id==="G3"){const dd=dist(T.cur);const opts=STATIONS.filter(x=>(dd[x.id]||0)>=18);body+=`<div class="grid2"><div><label class="lbl" for="ttgt">Station</label><select id="ttgt" data-in="tgt"><option value="">Choose…</option>${opts.map(x=>`<option value="${x.id}" ${o.target===x.id?"selected":""}>${esc(x.n)}</option>`).join("")}</select></div><div><label class="lbl" for="tdl">By</label><input id="tdl" data-in="dl" type="time" value="${o.deadline?hhmm(o.deadline):""}"></div></div>`}
@@ -3601,13 +3600,13 @@ function tOpenPanel(o){
   body+=`<div class="row"><button class="ink bigbtn" data-act="t-begin" ${cs.ok?"":"disabled"}>${o.lock?"Start the challenge":o.id==="G5"?"Lock in the declaration":"Start"}</button>${!o.lock?`<button class="bad" data-act="t-veto">Veto</button>`:""}</div>${cs.why?`<div class="small muted">${esc(cs.why)}</div>`:""}${!o.lock&&(why||(!cs.ok&&sp.span))?`<button data-act="t-redraw">Can't be played here (${esc(why||cs.why)}): redraw, no penalty</button>`:""}`;
   if(o.lock)body+=`<div class="small muted">Attempt it here. Leaving without finishing fails it.</div>`;
  }else body+=tLivePanel(o,sp);
- const f0=cardFace(fam,sp.n,body,`<span class="fam">${esc(upName(T))}</span>`);return now()-o.drawnAt<1500?f0.replace('class="cf ','class="cf new '):f0;
+ const f0=cardFace(fam,sp.n,body,`<span class="fam">${esc(tInfo(T.id).name)}</span>`);return now()-o.drawnAt<1500?f0.replace('class="cf ','class="cf new '):f0;
 }
 function tLivePanel(o,sp){
  const T=me();let x="";
  if(o.awaitSecond)return `<div class="call"><div class="d" style="font-size:20px">Second Opinion</div><div class="small">Put one of your takes to strangers, one at a time. One agree saves the card. Three disagrees fail it.</div><div class="meter"><div><div class="lbl">Disagrees</div><div class="v num">${o.secondNo||0} / 3</div></div></div><div class="grid2"><button class="good" data-act="t-secondyes">Agrees</button><button class="bad" data-act="t-secondno">Disagrees</button></div></div>`;
  const meter=(lab,v,extra)=>`<div class="meter"><div><div class="lbl">${lab}</div><div class="v num">${v}</div></div>${extra||""}</div>`;
- if(o.expired)x+=`<div class="call"><div class="d" style="font-size:20px">Time is up.</div><div class="grid2"><button class="bad" data-act="t-timefail">It fails</button><button class="good" data-act="t-timeplus">${esc(camName(T))} grants 2 more minutes</button></div></div>`;
+ if(o.expired)x+=`<div class="call"><div class="d" style="font-size:20px">Time is up.</div><div class="grid2"><button class="bad" data-act="t-timefail">It fails</button><button class="good" data-act="t-timeplus">Grant 2 more minutes</button></div></div>`;
  else if(o.tEnd)x+=meter("Time left",`<span data-live="tleft" data-p="t">${fmt(o.tEnd-now())}</span>`);
  if(sp.watch)x+=meter("Stopwatch",`<span data-live="watch" data-p="t">${o.wStart?Math.floor((now()-o.wStart)/1000):0}</span> / ${sp.watch}`,`<button data-act="${o.wStart?"t-pause":"t-wstart"}" class="${o.wStart?"bad":"ink"}">${o.wStart?"Paused over 3 s":"Start"}</button>`);
  if(sp.lap)x+=meter("Attempt "+(o.strikes+1)+" of "+sp.strikes.max,`<span data-live="lapleft" data-p="t">${o.lapEnd?fmt(o.lapEnd-now()):fmt(sp.lap*1000)}</span>`,o.lapEnd?"":`<button class="ink" data-act="t-lapstart">Start 60 s</button>`);
@@ -3620,14 +3619,14 @@ function tLivePanel(o,sp){
  if(sp.strikes&&!sp.lap)x+=meter(sp.strikes.label,`${o.strikes} / ${sp.strikes.max}`,`<button class="bad" data-act="t-strike">${sp.strikes.label}</button>`);
  if(sp.throws)x+=meter("In the cup",`${o.tally} / ${sp.throws.target}`,`<div class="small num">Throws ${o.strikes} / ${sp.throws.max}</div>`)+`<div class="grid2"><button class="good" data-act="t-throwin">In</button><button data-act="t-throwout">Miss</button></div>`;
  if(sp.list)x+=meter("Checked",`${o.list.length} / ${sp.listTarget||sp.list.length}`)+`<div class="checks">${sp.list.map((it,i)=>`<button data-act="t-check" data-i="${i}" aria-pressed="${o.list.includes(i)}">${o.list.includes(i)?"✓":"○"} ${esc(it)}${(sp.req||[]).includes(i)?" (required)":""}</button>`).join("")}</div>`;
- if(!o.lock&&o.id==="G3")x+=meter("Target",`${esc(ST[o.target].n)}`,`<div class="small num">by ${hhmm(o.deadline)}</div>`);
+ if(sp.bonus)x+=`<button data-act="t-bonus" aria-pressed="${!!o.bonus}">${o.bonus?"✓":"○"} ${esc(sp.bonus.label)} (+${sp.bonus.chips})</button>`;
  if(!o.lock&&o.id==="G4")x+=`<div class="small muted">Stations passed: ${(o.seen||[]).map(id=>esc(ST[id].n)).join(", ")||"none yet"} of 3. Seven takes by the third; the middle one is the prize.</div>`;
  if(!o.lock&&o.id==="G0")x+=`<div class="grid2"><div><label class="lbl" for="tdc">${esc(upName(T))}'s number</label><input id="tdc" data-in="dc" type="number" inputmode="numeric" value="${o.dc??""}"></div><div><label class="lbl" for="tsc">${esc(camName(T))}'s count</label><input id="tsc" data-in="sc" type="number" inputmode="numeric" value="${o.sc??""}"></div></div><button class="ink" data-act="t-dblcheck">Compare</button>`;
  if(o.lock&&sp.bridge)x+=`<button class="ink" data-act="t-bridgeend">${esc(sp.bridge.end)}</button>`;
  if(o.call){const what=o.call==="win"?"It counts":"It doesn't count";
   x+=o.dispute?`<div class="call"><div class="d">Replay the clip together now.</div><div class="grid2"><button class="good" data-act="t-agree" data-v="${o.call}">Agreed: ${what}</button><button class="bad" data-act="t-agree" data-v="${flip(o.call)}">Agreed: ${o.call==="win"?"it doesn't":"it counts"}</button></div><button data-act="t-coin">Still split: flip a coin</button></div>`
    :`<div class="call"><div><span class="lbl">${esc(camName(T))}'s call</span><div class="d" style="font-size:20px">${what}</div></div><div class="grid2"><button class="ink" data-act="t-accept">${esc(upName(T))} accepts</button><button data-act="t-dispute">Dispute</button></div></div>`}
- else if(needsCall(o,sp))x+=`<div class="lbl">${esc(camName(T))} (Camera) calls it</div><div class="grid2"><button class="good" data-act="t-call" data-v="win">It counts</button><button class="bad" data-act="t-call" data-v="fail">It doesn't</button></div>`;
+ else if(needsCall(o,sp))x+=`<div class="lbl">Does it count? Be honest on camera.</div><div class="grid2"><button class="good" data-act="t-call" data-v="win">It counts</button><button class="bad" data-act="t-call" data-v="fail">It doesn't</button></div>`;
  if(!o.lock&&sp.vetoAny)x+=`<button class="bad" data-act="t-veto">Veto</button>`;
  if(!o.lock&&(sp.span||!sp.ride))x+=`<button class="bad ghost" data-act="t-giveup">Give up (counts as a fail)</button>`;
  return x;
@@ -3672,13 +3671,13 @@ function tFeed(){
 function tInviteLink(){const base=location.href.split("#")[0];return base+"#join="+TM.code+"&city="+TM.meta.city+(TM.relay&&TM.relay!=="hivemq"?"&relay="+encodeURIComponent(TM.relay):"")}
 function tRenderMore(m){
  const T=me(),W=tWorld(),sc=tScore(),host=TM.meta.host===TM.phone;
- const seen=id=>id===TM.my?"this phone":TM.heard[id]?(now()-TM.heard[id]<120000?"live":"seen "+Math.round((now()-TM.heard[id])/60000)+" min ago"):"not heard yet";
- let x=`<div class="stack">${tAucBar()}<div class="card"><h2 class="d">${tLocked()?"Final count":"Live count"}</h2><div class="board">${sc.order.map((id,i)=>{const r=sc.R[id],U=TM.teams[id];return `<div class="brow" style="--tc:${tCol(id)}"><span class="rk num">${i+1}</span><div class="bn"><b>${esc(tInfo(id).name)}${id===TM.my?" (you)":""}</b><span>${esc(tInfo(id).mates.filter(Boolean).join(" & "))} · ${r.held} station${r.held===1?"":"s"} · ${U?U.bank:"?"} chips · ${seen(id)}</span><span class="bd">Property ${r.prop} · Areas ${n1(r.maj)} · Chips ${r.cr} · Stars ${n1(r.stars)}${r.names.length?": "+esc(r.names.join(", ")):""}</span></div><span class="bt num">${n1(r.tot)}</span></div>`}).join("")}</div>
+ const seen=id=>tLocal()||id===TM.my?"this phone":TM.heard[id]?(now()-TM.heard[id]<120000?"live":"seen "+Math.round((now()-TM.heard[id])/60000)+" min ago"):"not heard yet";
+ let x=`<div class="stack">${tAucBar()}<div class="card"><h2 class="d">${tLocked()?"Final count":"Live count"}</h2><div class="board">${sc.order.map((id,i)=>{const r=sc.R[id],U=TM.teams[id];return `<div class="brow" style="--tc:${tCol(id)}"><span class="rk num">${i+1}</span><div class="bn"><b>${esc(tInfo(id).name)}${id===TM.my?" (you)":""}</b><span>${esc(tInfo(id).mates.filter(Boolean).join(" & "))} · ${r.held} station${r.held===1?"":"s"} · ${U?U.bank:"?"} monies · ${seen(id)}</span><span class="bd">Property ${r.prop} · Areas ${n1(r.maj)} · Monies ${r.cr} · Stars ${n1(r.stars)}${r.names.length?": "+esc(r.names.join(", ")):""}</span></div><span class="bt num">${n1(r.tot)}</span></div>`}).join("")}</div>
  ${tLocked()?`<div class="banner ok">${esc(tName(sc.order[0]))} wins.</div>`:""}</div>`;
  x+=`<div class="card"><h3 class="d">Areas</h3>${sc.rows.map(r=>`<div class="arow"><b>${esc(r.m.n)}</b><span class="small muted">${r.m.ids.length} stations, worth ${r.m.pts}</span><div class="tchips">${teamList().map(t=>`<span class="tdot" style="--tc:${tCol(t.id)}"><i></i>${r.cnt[t.id]}</span>`).join("")}${r.win.length?`<span class="small">${r.win.length>1?"split":esc(tInfo(r.win[0]).name)+" leads"}</span>`:""}</div></div>`).join("")}</div>`;
  x+=`<div class="card"><h3 class="d">What's happening</h3><div class="log">${tFeed().map(e=>`<div><time class="num">${hhmm(e.t)}</time><span><i class="tdot" style="--tc:${tCol(e.k)}"><i></i></i> ${esc(e.x)}</span></div>`).join("")||'<div class="muted">Nothing yet.</div>'}</div></div>`;
  x+=`<div class="card"><h3 class="d">Sealed stations</h3>${LOCK_IDS.map(id=>{const ow=W.own[id],f=Object.keys(W.fails[id]||{});return `<div class="small">${esc(ST[id].n)}: ${ow?"won by "+esc(tName(ow)):f.length?"sealed; "+f.map(tName).map(esc).join(", ")+" failed it, so it pays double to anyone else":"sealed"}</div>`}).join("")}</div>`;
- x+=`<div class="card invite"><h3 class="d">Invite a phone</h3><div class="code num">${TM.code}</div><div class="small muted">Open Metro Mash, tap Join with a code, and type this in. Or send the link.${TM.relay!=="hivemq"?" Relay: "+esc(relayName(TM.relay))+".":""}</div><div id="qr" class="qr"></div><div class="row"><button data-act="t-copylink">Copy invite link</button><button data-act="t-qr">Show QR code</button></div></div>`;
+ if(!tLocal())x+=`<div class="card invite"><h3 class="d">Invite a phone</h3><div class="code num">${TM.code}</div><div class="small muted">Open Metro Mash, tap Join with a code, and type this in. Or send the link.${TM.relay!=="hivemq"?" Relay: "+esc(relayName(TM.relay))+".":""}</div><div id="qr" class="qr"></div><div class="row"><button data-act="t-copylink">Copy invite link</button><button data-act="t-qr">Show QR code</button></div></div>`;
  x+=`<div class="card"><h2 class="d">Show mode</h2><p class="small">Full-screen graphics for the edit. Turn on screen recording, open a graphic, and tap the screen once to hide the buttons.</p><button class="ink bigbtn" data-act="t-showopen" data-m="live">Live board and leaderboard</button><button class="bigbtn" data-act="t-showopen" data-m="replay">Replay the day</button><button class="bigbtn" data-act="t-showopen" data-m="explain">Rules explainer</button></div>`;
  x+=`<div class="card"><label class="lbl">Hard stop: ${hhmm(TM.meta.stopTs)} (${tMinsLeft()} min left)</label>${host?`<div class="row"><button data-act="t-extend" data-m="60">+1 hour for everyone</button><button data-act="t-extend" data-m="-30">−30 min</button></div>`:`<div class="small muted">The phone that started the game can move it.</div>`}<div class="small muted">Sync: ${esc(relayName(TM.relay))}, ${TM.net==="live"?"connected":TM.net}. Messages are encrypted with the game code.</div><div class="row"><button data-act="t-howto">How the game works</button><button data-act="t-resync">Reconnect</button></div>
   <label class="lbl" for="tmrelay">Switch relay</label><select id="tmrelay">${RELAYS.map(r=>`<option value="${r.id}" ${TM.relay===r.id?"selected":""}>${r.n}</option>`).join("")}${RELAYS.find(r=>r.id===TM.relay)?"":`<option value="${esc(TM.relay)}" selected>Custom relay</option>`}</select><div class="small muted">If phones stop syncing, switch every phone in the game to the same relay here. Nothing is lost: each phone sends its team again.</div></div>`;
@@ -3722,6 +3721,8 @@ function tRenderDuel(force){
 }
 function tFlash(title,body,fam){TM.reveal={fam:fam||"Curse",n:title,d:body};TM.revealUntil=now()+2200}
 // toasts queue up, so a curse landing and a curse drawn at the same moment are both seen
+// a quick explainer the first two times something happens on this phone
+function tTip(k,n,d){const t=lsGet("mm.tips")||{};if((t[k]||0)>=2)return;t[k]=(t[k]||0)+1;lsSet("mm.tips",t);tToast(n,d)}
 function tToast(n,d){TM.toastQ=TM.toastQ||[];const l=TM.toastQ[TM.toastQ.length-1];if(!(l&&l.n===n&&l.d===d))TM.toastQ.push({n,d});if(TM.toastQ.length>6)TM.toastQ.shift()}
 function tRenderOv(){
  const ov=$("#ov");
@@ -3739,34 +3740,34 @@ function tRenderOv(){
 // ---------- before play: start a game, join one, pick your team ----------
 function tSetupDefaults(){
  const st=new Date();st.setHours(16,15,0,0);
- return {n:3,start:"together",stop:"16:15",relay:"hivemq",custom:"",teams:TEAM_NAMES.map((n,i)=>({name:n,a:"",b:"",col:T_DEFCOL[i]}))};
+ return {n:3,start:"together",stop:"16:15",relay:"hivemq",custom:"",teams:TEAM_NAMES.map((n,i)=>({name:n,m:["","","",""],pc:2,col:T_DEFCOL[i]}))};
 }
 function tRenderSetup(){
  const U=TM.setup,top=$("#top"),m=$("#main");
  document.body.classList.remove("playing","onmap","oncard");
- top.innerHTML=`<div class="r"><div><div class="lbl">Metro Mash · Teams</div><h1 class="d">${esc(CITY.copy.title)}</h1></div><button class="back" data-act="t-home">‹ All games</button></div>`;
+ top.innerHTML=`<div class="r"><div><div class="lbl">Metro Mash · ${U.local?"One phone":"Teams"}</div><h1 class="d">${esc(CITY.copy.title)}</h1></div><button class="back" data-act="t-home">‹ All games</button></div>`;
  const ends=CITY.ends;
  m.innerHTML=`<div class="stack">
-  <div class="card"><h2 class="d">Teams</h2><div class="small muted">Two to six teams of two. Each team needs one phone with internet; both of you can join on your own phones too.</div>
-   <div class="stepper"><button data-act="t-n" data-d="-1" ${U.n<=2?"disabled":""} aria-label="One team fewer">−</button><b class="num">${U.n} teams</b><button data-act="t-n" data-d="1" ${U.n>=6?"disabled":""} aria-label="One team more">+</button></div>
-   ${U.teams.slice(0,U.n).map((t,i)=>`<div class="tset" style="--tc:var(--p${i+1})"><label class="lbl" for="tn${i}">Team ${i+1}</label><input id="tn${i}" data-tf="name" data-i="${i}" value="${esc(t.name)}" autocomplete="off" maxlength="16"><div class="grid2"><input id="ta${i}" data-tf="a" data-i="${i}" value="${esc(t.a)}" placeholder="Player" autocomplete="off" aria-label="Team ${i+1}, first player"><input id="tb${i}" data-tf="b" data-i="${i}" value="${esc(t.b)}" placeholder="Player" autocomplete="off" aria-label="Team ${i+1}, second player"></div><div class="swatches" role="radiogroup" aria-label="Team ${i+1} colour">${T_PAL.map(c=>{const taken=U.teams.slice(0,U.n).some((o,j)=>j!==i&&o.col===c[0]);return `<button class="sw" role="radio" style="--sw:${c[2]};--swd:${c[3]}" aria-checked="${t.col===c[0]}" aria-label="${c[1]}${taken?", taken":""}" ${taken?"disabled":""} data-act="t-col" data-i="${i}" data-k="${c[0]}"></button>`}).join("")}</div></div>`).join("")}
+  <div class="card"><h2 class="d">${U.local?"Players":"Teams"}</h2><div class="small muted">${U.local?"Two to six players on this one phone. Pass it around: whoever is playing taps their colour at the top.":"Two to six teams of one to four. Each team needs one phone with internet; teammates can join on their own phones too."}</div>
+   <div class="stepper"><button data-act="t-n" data-d="-1" ${U.n<=2?"disabled":""} aria-label="One fewer">−</button><b class="num">${U.n} ${U.local?"players":"teams"}</b><button data-act="t-n" data-d="1" ${U.n>=6?"disabled":""} aria-label="One more">+</button></div>
+   ${U.teams.slice(0,U.n).map((t,i)=>`<div class="tset" style="--tc:var(--p${i+1})"><label class="lbl" for="tn${i}">${U.local?"Player":"Team"} ${i+1}</label><input id="tn${i}" data-tf="name" data-i="${i}" value="${esc(t.name)}" autocomplete="off" maxlength="16" placeholder="${U.local?"Name":""}"><div class="mates" ${U.local?"hidden":""}><div class="grid2">${t.m.slice(0,t.pc).map((nm,j)=>`<input id="tm${i}_${j}" data-tf="m" data-i="${i}" data-j="${j}" value="${esc(nm)}" placeholder="Player ${j+1}" autocomplete="off" aria-label="Team ${i+1}, player ${j+1}">`).join("")}</div><div class="row small"><button data-act="t-pc" data-i="${i}" data-d="-1" ${t.pc<=1?"disabled":""}>− player</button><button data-act="t-pc" data-i="${i}" data-d="1" ${t.pc>=4?"disabled":""}>+ player</button><span class="muted">${t.pc} ${t.pc===1?"player":"players"}</span></div></div><div class="swatches" role="radiogroup" aria-label="Team ${i+1} colour">${T_PAL.map(c=>{const taken=U.teams.slice(0,U.n).some((o,j)=>j!==i&&o.col===c[0]);return `<button class="sw" role="radio" style="--sw:${c[2]};--swd:${c[3]}" aria-checked="${t.col===c[0]}" aria-label="${c[1]}${taken?", taken":""}" ${taken?"disabled":""} data-act="t-col" data-i="${i}" data-k="${c[0]}"></button>`}).join("")}</div></div>`).join("")}
   </div>
-  <div class="card"><h2 class="d">Where you start</h2><div class="stakes${U.flash?" flash":""}"><button aria-pressed="${U.start==="together"}" data-act="t-start" data-k="together">Together<span>Every team starts at ${esc(ST[START_ID].n)}.</span></button><button aria-pressed="${U.start==="spread"}" data-act="t-start" data-k="spread">Spread out<span>Each team starts at a different end of the board.</span></button></div><div class="startpick${U.flash?" flash":""}" role="status" data-k="${U.start}">${U.start==="together"?`✓ Everyone meets at <b>${esc(ST[START_ID].n)}</b>.`:`✓ Starting spots: ${U.teams.slice(0,U.n).map((t,i)=>`<span class="sp" style="--tc:var(--p${i+1})">${esc(t.name||TEAM_NAMES[i])} · ${esc(ST[ends[i%ends.length]].n)}</span>`).join("")}`}</div></div>
+  <div class="card"><h2 class="d">Where you start</h2><div class="stakes${U.flash?" flash":""}"><button aria-pressed="${U.start==="together"}" data-act="t-start" data-k="together">Together<span>Every team starts at ${esc(ST[START_ID].n)}.</span></button><button aria-pressed="${U.start==="spread"}" data-act="t-start" data-k="spread" ${U.local?"disabled":""}>Spread out<span>${U.local?"Not on one phone: you're all in the same place. ":""}Each team starts at a different end of the board.</span></button></div><div class="startpick${U.flash?" flash":""}" role="status" data-k="${U.start}">${U.start==="together"?`✓ Everyone meets at <b>${esc(ST[START_ID].n)}</b>.`:`✓ Starting spots: ${U.teams.slice(0,U.n).map((t,i)=>`<span class="sp" style="--tc:var(--p${i+1})">${esc(t.name||TEAM_NAMES[i])} · ${esc(ST[ends[i%ends.length]].n)}</span>`).join("")}`}</div></div>
   <div class="card"><label class="lbl" for="tstop">Hard stop</label><input id="tstop" type="time" data-tf="stop" value="${esc(U.stop)}"><div class="small muted">Everyone's clock ends together. If the time has already passed today, it means tomorrow.</div></div>
-  <details class="card" ${U.relay!==RELAYS[0].id?"open":""}><summary class="lbl">Sync relay</summary><div class="small muted">Phones talk through a free public relay. Every phone in the game must use the same one; invite links carry it. Messages are encrypted with the game code.</div><select id="trelay" data-tf="relay">${RELAYS.map(r=>`<option value="${r.id}" ${U.relay===r.id?"selected":""}>${r.n}</option>`).join("")}<option value="custom" ${U.relay==="custom"?"selected":""}>Custom (wss://…)</option></select>${U.relay==="custom"?`<input id="tcustom" data-tf="custom" value="${esc(U.custom)}" placeholder="wss://your-broker/mqtt" autocomplete="off">`:""}</details>
-  <button class="ink bigbtn" data-act="t-create">Create the game</button>
+  <details class="card" ${U.relay!==RELAYS[0].id?"open":""} ${U.local?"hidden":""}><summary class="lbl">Sync relay</summary><div class="small muted">Phones talk through a free public relay. Every phone in the game must use the same one; invite links carry it. Messages are encrypted with the game code.</div><select id="trelay" data-tf="relay">${RELAYS.map(r=>`<option value="${r.id}" ${U.relay===r.id?"selected":""}>${r.n}</option>`).join("")}<option value="custom" ${U.relay==="custom"?"selected":""}>Custom (wss://…)</option></select>${U.relay==="custom"?`<input id="tcustom" data-tf="custom" value="${esc(U.custom)}" placeholder="wss://your-broker/mqtt" autocomplete="off">`:""}</details>
+  <button class="ink bigbtn" data-act="t-create">${U.local?"Start the game":"Create the game"}</button>
  </div>`;
- m.querySelectorAll("[data-tf]").forEach(el=>el.addEventListener(el.tagName==="SELECT"?"change":"input",()=>{const k=el.dataset.tf,i=+el.dataset.i;if(k==="name"||k==="a"||k==="b")U.teams[i][k]=el.value;else U[k]=el.value;if(k==="relay")tRender()}));
+ m.querySelectorAll("[data-tf]").forEach(el=>el.addEventListener(el.tagName==="SELECT"?"change":"input",()=>{const k=el.dataset.tf,i=+el.dataset.i;if(k==="m")U.teams[i].m[+el.dataset.j]=el.value;else if(k==="name")U.teams[i][k]=el.value;else U[k]=el.value;if(k==="relay")tRender()}));
  U.flash=0;
 }
 function tCreate(){
  const U=TM.setup;const n=U.n;
  const [hh,mm]=(U.stop||"16:15").split(":").map(Number);const d=new Date();d.setHours(hh,mm,0,0);if(d.getTime()<=now()+5*60000)d.setDate(d.getDate()+1);
- const relay=U.relay==="custom"?(U.custom||"").trim():U.relay;
- if(U.relay==="custom"&&!/^wss?:\/\//.test(relay)){tFlash("Relay address","A custom relay starts with wss://","Curse");tRenderOv();return}
- const teams=U.teams.slice(0,n).map((t,i)=>({id:"t"+(i+1),name:(t.name||TEAM_NAMES[i]).trim().slice(0,16)||TEAM_NAMES[i],mates:[t.a.trim().slice(0,24),t.b.trim().slice(0,24)],col:t.col||T_DEFCOL[i],start:U.start==="spread"?CITY.ends[i%CITY.ends.length]:START_ID}));
+ const relay=U.local?"local":U.relay==="custom"?(U.custom||"").trim():U.relay;
+ if(!U.local&&U.relay==="custom"&&!/^wss?:\/\//.test(relay)){tFlash("Relay address","A custom relay starts with wss://","Curse");tRenderOv();return}
+ const teams=U.teams.slice(0,n).map((t,i)=>({id:"t"+(i+1),name:(t.name||TEAM_NAMES[i]).trim().slice(0,16)||TEAM_NAMES[i],mates:t.m.slice(0,t.pc).map(x=>x.trim().slice(0,24)),col:t.col||T_DEFCOL[i],start:U.start==="spread"?CITY.ends[i%CITY.ends.length]:START_ID}));
  const meta={v:2,rev:1,city:CITY.id,startedAt:now(),stopTs:d.getTime(),start:U.start,teams,host:TM.phone,done:false};
- TM.code=newCode();TM.relay=relay;TM.meta=meta;TM.teams={};for(const t of teams)TM.teams[t.id]=tFresh(t,meta);TM.my=null;TM.setup=null;
+ TM.code=newCode();TM.relay=relay;TM.meta=meta;TM.teams={};for(const t of teams)TM.teams[t.id]=tFresh(t,meta);TM.my=U.local?teams[0].id:null;TM.setup=null;
  lsSet(APP_KEY,Object.assign(appState(),{intent:"resume",joinCode:null}));
  tApplyTeamText();tInvalidate();tSave();tConnect();tRender();
 }
@@ -3792,7 +3793,7 @@ function tRenderPick(){
  const top=$("#top"),m=$("#main");document.body.classList.remove("playing","onmap","oncard");
  top.innerHTML=`<div class="r"><div><div class="lbl">Metro Mash · ${esc(CITY.name)} · game ${esc(TM.code)}</div><h1 class="d">Which team is this phone?</h1></div><button class="back" data-act="t-home">‹ All games</button></div>`;
  m.innerHTML=`<div class="stack"><div class="card invite"><div class="lbl">Game code</div><div class="code num">${TM.code}</div><div class="small muted">Other phones: open Metro Mash, tap Join with a code, type this in. ${TM.net==="live"?"Synced.":"Connecting…"}</div><div id="qr" class="qr"></div><div class="row"><button data-act="t-copylink">Copy invite link</button><button data-act="t-qr">Show QR code</button></div></div>
-  ${teamList().map(t=>`<button class="tpick" style="--tc:${tCol(t.id)}" data-act="t-pickteam" data-t="${t.id}"><b>Team ${esc(t.name)}</b><span>${esc(t.mates.filter(Boolean).join(" & ")||"Two players")} · starts at ${esc(ST[t.start].n)}${TM.teams[t.id]?"":" · waiting for its state…"}</span></button>`).join("")}
+  ${teamList().map(t=>`<button class="tpick" style="--tc:${tCol(t.id)}" data-act="t-pickteam" data-t="${t.id}"><b>Team ${esc(t.name)}</b><span>${esc(t.mates.filter(Boolean).join(" & ")||t.mates.length+(t.mates.length===1?" player":" players"))} · starts at ${esc(ST[t.start].n)}${TM.teams[t.id]?"":" · waiting for its state…"}</span></button>`).join("")}
   <button class="bigbtn" data-act="t-howto">How the game works</button></div>`;
 }
 function tRender(){
@@ -3849,7 +3850,7 @@ function tOpenShow(mode){
 function tShowCap(){
  const sc=tScore(),a=sc.order[0],b=sc.order[1],A=sc.R[a],B=b?sc.R[b]:null,top=n1(A.tot);
  const level=B&&B.tot===A.tot,tie=level&&B.held===A.held;
- if(tLocked())return {t:tie?"Final count: a tie at "+top:"Final count: "+tName(a)+" wins",s:tie?"Same points, same stations held":level?top+" points each; more stations held breaks it":top+" points"};
+ if(tLocked())return {t:tie?"Final count: a tie at "+top:"Final count: "+tName(a)+" wins",s:tie?"Same stars, same stations held":level?top+" stars each; more stations held breaks it":top+" stars"};
  return {t:A.tot<=0?"Nobody is on the board yet":tie?"Level at the top on "+top:tName(a)+" leads with "+top,s:tClockLeft()+" to the hard stop at "+hhmm(TM.meta.stopTs)};
 }
 function tCloseShow(){TM.show=null;clearTimeout(tShowT);const el=$("#show");el.hidden=true;el.innerHTML="";el.className="show"}
@@ -3864,7 +3865,7 @@ function tRunReplay(){
  const scoreAt=()=>{const R={};for(const t of teamList())R[t.id]={tot:0};for(const s of STATIONS){const o=st[s.id].o;if(o!=null)R[teamList()[o].id].tot+=s.p}return {R,order:teamList().map(t=>t.id).sort((a,b)=>R[b].tot-R[a].tot)}};
  tDrawShow({st,cur:null,up:0},{},{t:"The day, station by station",s:C.length+" claims"},scoreAt());
  const step=()=>{if(TM.show!=="replay")return;
-  if(i>=C.length){tDrawShow({st,cur:null,up:0},{},{t:"Final board",s:"Most points wins"},scoreAt());return}
+  if(i>=C.length){tDrawShow({st,cur:null,up:0},{},{t:"Final board",s:"Most stars wins"},scoreAt());return}
   const c=C[i++];st[c.s].o=tIdx(c.team);st[c.s].vis=true;
   tDrawShow({st,cur:c.s,up:tIdx(c.team)},{pops:[c.s]},{t:tName(c.team)+({auction:" wins "+ST[c.s].n+" at auction",duel:" wins "+ST[c.s].n+" in a trivia duel",lock:" unlocks "+ST[c.s].n}[c.how]||" takes "+ST[c.s].n),s:hhmm(c.t)},scoreAt());
   tShowT=setTimeout(step,900)};
@@ -3877,38 +3878,25 @@ function teamsXpSteps(){
  const tst=own=>xst(own);
  const trainsAt=at=>Object.entries(at).map(([id,k])=>({at:id,k,me:k===0}));
  return [
-  {t:CITY.copy.title,b:CITY.copy.board+" Two to six teams of two, every team on its own phone. Most points at the stop wins.",scene:()=>({st:blankSt(),sweep:1})},
-  {t:"One plays, one films",b:"In each team, one of you is up and plays the card. The other films. You swap at every hop. Up picks the next stop.",w:"turn",
-   scene:w=>{const k=w.k||0,own={};for(let j=1;j<=k;j++)own[P[j]]=0;return {st:tst(own),cur:P[k],next:P[k+1],up:0,pops:k?[P[k]]:[],focus:[P[k],P[k+1]],z:2.6}}},
-  {t:"A card every time the doors close",b:"Up draws a card: a Take, a Stunt or a Gambit. Train cards finish before the doors open. Platform cards happen at the next stop. Walk or bike a hop and you only draw platform cards.",
+  {t:"Race For The Most Stars",b:(tLocal()?"Two to six players, all on this phone.":"Teams")+" race through the "+STATIONS.length+" stops on the train lines to gain the most stations. Bonuses can also be earned to win at the end.",scene:()=>({st:blankSt(),sweep:1})},
+  {t:"Draw Cards Between Stops",b:"Complete Takes in between stops to earn monies for buying stations later. Walk or bike between stations and you'll only play a card at the next platform.",
    scene:()=>({st:tst(),cur:X.card[0],next:X.card[1],up:0,focus:X.card,z:2.6}),over:()=>cardFace("Take",T0.n,`<p class="small">${esc(T0.d)}</p>`)},
-  {t:"Call your stakes on camera",b:"Before you start, say Safe or All-in. Tap them to see the difference.",w:"stakes",
-   scene:()=>({st:tst(),cur:X.card[0],next:X.card[1],up:0,focus:X.card,z:2.6})},
-  {t:"Complete it, and you can buy the stop",b:"Complete the card and you can buy the station you arrive at for its price: 1, 2 or 4 chips. Hubs too. No completed card, no buying.",
+  {t:"Win It To Buy It",b:"Complete a station's card to earn monies and the right to buy the station. Veto the card or fail it and you lose monies, and the station goes to auction.",
    scene:()=>({st:tst({[X.buy.id]:0}),cur:X.buy.id,up:0,pops:[X.buy.id],floats:[{id:X.buy.id,t:X.buy.float,c:"var(--p1)"}],focus:X.buy.focus,z:2.4})},
-  {t:"Fail it, and it goes to auction",b:"Fail or veto the card and the station goes up for auction. Every team bids from their own phone, wherever they are, for two minutes. Highest bid wins and pays the bank.",
-   scene:()=>({st:tst(),cur:X.bid.id,up:0,floats:[{id:X.bid.id,t:"✕",c:"var(--bad)"}],focus:X.bid.focus,z:2.4})},
-  {t:"Steal a station with a trivia duel",b:"Complete the card at another team's stop and you can challenge them: five city questions, 15 seconds each. They have 20 minutes to beat your score and can't hop until they play. Lose, and your next station is off limits. Try one:",w:"duel",
+  {t:"Steal With Smarts",b:"Complete the card at another team's stop and you can challenge them to a Trivia Duel: five city questions, 15 seconds each. They have 20 minutes to beat your score and can't hop stations until they play. Lose, and your next station is off limits until you visit a new one.",w:"duel",
    scene:()=>({st:tst(X.take.st),cur:X.take.cur,up:0,pops:[X.take.cur],focus:X.take.focus,z:2.4})},
-  {t:capFirst(numWord(LOCK_IDS.length))+" sealed stations",b:"Gold stations hold a challenge you only see on the platform. Win it for the station and a payout. Fail it and it stays sealed, and the next team to try it gets double.",
-   scene:()=>({st:tst(),hl:LOCK_IDS}),over:()=>cardFace("Locked",MR.n,`<p class="small">${esc(MR.d)} ${esc(MR.c)}</p>`)},
-  {t:"Every team, live",b:"Every phone shows every team: where they are, what they own and what they're worth. Moves sync over the internet in a second or two, and catch up after a tunnel.",
-   scene:()=>({st:tst(TA.own),trains:trainsAt(TA.at)})},
-  {t:"Curses, sent from your phone",b:"Fail a card or a sealed challenge and you draw a curse: the teams having a rough day get the ammunition. Play it on any team, any time: it lands on their phone. Tap one to read it.",w:"curses",
-   scene:()=>({st:tst(X.curses)})},
-  {t:"A layover every three hours",b:"Wherever you are, a rider from the last train picks where you eat. 25 minutes, no chips, no cards, and card timers pause.",
-   scene:()=>({st:tst(X.layover.st),cur:X.layover.cur,up:0,focus:X.layover.focus,z:2.4})},
-  {t:"Most points at the stop wins",b:"Every station scores its price. Own the most stations in an area and you take its bonus; ties split it. Chips you earned add a point per 20, and bonus stars land at the count. Tap one.",w:"lines",
+  {t:"Score Stars & Steal Lines",b:"Every station has its own score, but the team that owns the most stations on a line takes that line's bonus; ties split it. Monies you earned add one star per 20, and these bonus stars land at the count. Tap one:",w:"stars",
    scene:w=>({st:tst(X.split),hl:MAJ[w.line??0].ids})},
  ];
 }
 function teamsXpWidget(k,w){
  const T=TM.my&&me(),N=T?[esc(mateName(T,0)||"Player 1"),esc(mateName(T,1)||"Player 2")]:["Player 1","Player 2"],P=CITY.xp.path;
- if(k==="turn"){const i=w.k||0,up=i%2;return `<div class="xw-turn">${[0,1].map(p=>`<div class="xw-pl p1${p===up?" on":""}">${N[p]}<small>${p===up?"up":"films"}</small></div>`).join("")}<button class="ink" data-act="xpw" data-k="turn">${i<3?"Next hop":"Start over"}</button></div><div class="xw-msg">Hop ${i+1}: ${N[up]} rides ${esc(ST[P[i]].n)} to ${esc(ST[P[i+1]].n)} while ${N[1-up]} films.</div>`}
- if(k==="stakes"){const v=w.stake||"safe";return `<div class="xw-seg"><button data-act="xpw" data-k="stake" data-v="safe" aria-pressed="${v==="safe"}">Safe</button><button data-act="xpw" data-k="stake" data-v="allin" aria-pressed="${v==="allin"}">All-in</button></div><dl class="xw-out"><dt>Complete</dt><dd>${v==="safe"?"10 chips":"20 chips"}, and you can buy the station</dd><dt>Fail</dt><dd>${v==="safe"?"The station goes to auction":"The station goes to auction, and you lose 3 chips"}</dd></dl>`}
+ if(k==="wl"){return `<dl class="xw-out"><dt>Complete</dt><dd>+10 monies, and you can buy the station (or challenge for it)</dd><dt>Fail</dt><dd>−5 monies, the station goes to auction, and you draw a curse</dd></dl>`}
  if(k==="duel"){const bank=(typeof TRIVIA!=="undefined"&&TRIVIA[CITY.id])||[];if(!bank.length)return `<div class="xw-msg">Five questions, fifteen seconds each.</div>`;
    const i=(w.q??0)%bank.length,Q=tQuestion("c"+i,"xp"),picked=w.pick;
    return `<div class="xw-msg"><b>${esc(Q.q)}</b>${picked!=null?` <span class="xw-fb">${picked===Q.ans?"Right.":"Not that one."}</span> <button class="xw-next" data-act="xpw" data-k="dnext">Another ›</button>`:""}</div><div class="xw-opts">${Q.opts.map((o,j)=>`<button data-act="xpw" data-k="dpick" data-v="${j}" class="${picked==null?"":j===Q.ans?"right":j===picked?"wrong":""}" ${picked!=null?"disabled":""}>${esc(o)}</button>`).join("")}</div>`}
+ if(k==="stars"){const S=[["Showman","Most cards completed."],["Highwayman","Most stations taken from other teams."],["Lockpick","Most sealed stations won."],["Explorer","Most stations visited."]];const g=w.star??0;
+  return `<div class="xw-chips">${S.map((x,i)=>`<button data-act="xpw" data-k="star" data-v="${i}" aria-pressed="${i===g}">★ ${x[0]}</button>`).join("")}</div><div class="xw-msg"><b>${S[g][0]}.</b> ${S[g][1]} Worth 3 stars, split on a tie.</div>`}
  if(k==="lines"){const g=w.line??0,m=MAJ[g],st=xst(CITY.xp.split),c=[0,1].map(p=>m.ids.filter(id=>st[id].o===p).length),win=c[0]>c[1]?0:c[1]>c[0]?1:null,nm=["Team "+(teamList()[0]?teamList()[0].name:"Pink"),"Team "+(teamList()[1]?teamList()[1].name:"Blue")];
   return `<div class="xw-chips">${MAJ.map((x,i)=>`<button data-act="xpw" data-k="line" data-v="${i}" aria-pressed="${i===g}">${x.n}</button>`).join("")}</div><div class="xw-msg">${m.ids.length} stations, worth ${m.pts}. Here ${esc(nm[0])} owns ${c[0]} and ${esc(nm[1])} owns ${c[1]}, so ${win==null?"they split it":esc(nm[win])+" takes the "+m.pts}.</div>`}
  if(k==="curses"){const c=CURSES.find(x=>x.k===(w.curse||"rush"));return `<div class="xw-chips">${CURSES.map(x=>`<button data-act="xpw" data-k="curse" data-v="${x.k}" aria-pressed="${x.k===c.k}">${x.n}</button>`).join("")}</div><div class="xw-msg"><b>${c.n}.</b> ${esc(c.eff.replace(/\bthey\b/g,"they").replace(/^Their/,"The other team's"))} <span class="muted">Costs ${c.cost}.</span></div>`}
@@ -3927,7 +3915,9 @@ document.addEventListener("click",e=>{
   case"t-start":TM.setup.start=D.k;TM.setup.flash=1;tRender();return;
   case"t-col":{const U=TM.setup,t=U.teams[+D.i],old=palOf(t.col)[1];if(U.teams.slice(0,U.n).some((o,j)=>j!==+D.i&&o.col===D.k))return;
    t.col=D.k;if(!t.name||t.name===old||TEAM_NAMES.includes(t.name))t.name=palOf(D.k)[1];tRender();return}
+  case"t-pc":{const t=TM.setup.teams[+D.i];t.pc=Math.max(1,Math.min(4,t.pc+ +D.d));tRender();return}
   case"t-create":tCreate();return;
+  case"t-switch":{if(!TM.teams[D.t]||D.t===TM.my)return;TM.my=D.t;TM.tab="map";TM.sel=null;tSave();tRender();tFlash("Pass the phone",tName(D.t)+" is playing now.","Take");return}
   case"t-joingo":tJoinGo();return;
   case"t-pickteam":{if(!TM.teams[D.t])return;TM.my=D.t;TM.tab="map";TM.join=null;tSave();if(tProcessIncoming())tCommitQuiet();tPublish();tRender();if(!lsGet("turf.teams.seenhelp")){lsSet("turf.teams.seenhelp",1);xpOpen("help")}return}
   case"t-copylink":{const l=tInviteLink();try{navigator.clipboard.writeText(l).then(()=>{tFlash("Copied","The invite link is on your clipboard.","Take");tRenderOv()},()=>{tFlash("Invite link",l,"Take");tRenderOv()})}catch(err){tFlash("Invite link",l,"Take");tRenderOv()}return}
@@ -3967,9 +3957,8 @@ document.addEventListener("click",e=>{
   case"t-dueldone":tAct(()=>{if(T.duel&&T.duel.done)T.duel=null});tRenderDuel();return;
   case"t-duelcancel":tAct(()=>{if(T.duel&&T.duel.qStart==null)T.duel=null});tRenderDuel();return;
   case"t-lockopen":tAct(()=>tOpenLock(T.cur));return;
-  case"t-szstart":tAct(()=>{T.sz={id:T.cur,start:now(),end:now()+LAY_MIN*60000};tLog("Layover at "+ST[T.cur].n+".")});return;
-  case"t-szskip":tAct(()=>{T.layLast=now();tLog("Layover skipped.")});return;
-  case"t-szend":tAct(()=>{const el=now()-T.sz.start;if(T.open&&T.open.tEnd)T.open.tEnd+=el;T.layLast=now();tLog("Layover over ("+Math.round(el/60000)+" min).");T.sz=null});return;
+  case"t-szstart":tAct(()=>{T.sz={id:T.cur,start:now(),end:now()+LAY_MIN*60000};tLog("Layover at "+ST[T.cur].n+".");tToast("Layover","Riders from your last train pick where you eat nearby. A mandatory "+LAY_MIN+" minutes for every team at once: ask the staff about the history of the restaurant and the neighbourhood, then give a detailed review of the food. Card timers pause.")});return;
+  case"t-szend":tAct(()=>{if(now()<T.sz.end)return;const el=now()-T.sz.start;if(T.open&&T.open.tEnd)T.open.tEnd+=el;T.layWin=tLayWin();tLog("Layover over ("+Math.round(el/60000)+" min).");T.sz=null});return;
   case"t-ctarget":TM.cpick={i:+D.i,target:D.t};tRender();return;
   case"t-cplay":{const i=+D.i,c=CURSES[T.hand[i]];let target=TM.cpick&&TM.cpick.i===i?TM.cpick.target:null,extra=null;
    if(c&&c.k==="gilded")extra=(document.getElementById("tg"+i)||{}).value||null;
@@ -3981,17 +3970,18 @@ document.addEventListener("click",e=>{
  }
  if(!o)return;
  switch(a){
-  case"t-stake":tAct(()=>{o.stakes=D.k;tLog(upName(T)+": "+D.k+".")});return;
+  case"t-decl":tAct(()=>{o.declared=+D.n;tLog("Call Your Takes: "+o.declared+" declared.")});return;
+  case"t-bonus":tAct(()=>{o.bonus=!o.bonus});return;
   case"t-begin":if(!tCanStart(o).ok)return;tAct(()=>tBegin(o));return;
   case"t-veto":tAct(()=>tFinish("veto"));return;
   case"t-redraw":tAct(()=>tRedraw());return;
   case"t-bridgeboard":tAct(()=>{o.bridgeBoarded=true;tLog(sp.bridge.boarded+".")});return;
   case"t-bridgeend":tAct(()=>tFinish(o.tally>=3?"win":"fail",o.tally>=3?"":sp.bridge.endNote+" "+o.tally+" rulings."));return;
-  case"t-vote":tAct(()=>{o.votes=o.votes||[0,0];o.votes[+D.v]++;const v=o.votes;if(v[0]+v[1]>=sp.poll){if(v[0]&&v[1])tFinish("win",v[0]+" for, "+v[1]+" against");else tLog("All one way so far. Keep going until someone breaks it.")}});return;
+  case"t-vote":tAct(()=>{o.votes=o.votes||[0,0];o.votes[+D.v]++;const v=o.votes;if(v[0]+v[1]>=sp.poll){if(sp.callOnly)tLog("Ten votes: "+v[0]+" for, "+v[1]+" against. Announce it to the plaza, then call it.");else if(v[0]&&v[1])tFinish("win",v[0]+" for, "+v[1]+" against");else tLog("All one way so far. Keep going until someone breaks it.")}});return;
   case"t-secondyes":tAct(()=>{o.secondDone=true;o.awaitSecond=false;T.open=o;tFinish("win","A stranger agreed with the take.")});return;
   case"t-secondno":tAct(()=>{o.secondNo=(o.secondNo||0)+1;if(o.secondNo>=3){o.awaitSecond=false;tFinish("fail","Second Opinion: three strangers disagreed.")}});return;
   case"t-timefail":tAct(()=>tFinish("fail","Time."));return;
-  case"t-timeplus":tAct(()=>{o.expired=false;o.tEnd=now()+120000;tLog(camName(T)+" grants two more minutes on "+sp.n+".")});return;
+  case"t-timeplus":tAct(()=>{o.expired=false;o.tEnd=now()+120000;tLog("Two more minutes on "+sp.n+".")});return;
   case"t-giveup":tAct(()=>tFinish("fail","Gave up."));return;
   case"t-tally":tAct(()=>{
    if(sp.tally.perBoard){if(!o.canStep){tFlash("Same ride","The next step opens on your next hop.");return}o.canStep=false}
@@ -4003,7 +3993,7 @@ document.addEventListener("click",e=>{
   case"t-tfail":tAct(()=>tFinish("fail",sp.tally.failOn));return;
   case"t-strike":tAct(()=>{o.strikes++;if(sp.hold)o.hStart=null;if(o.strikes>=sp.strikes.max)tFinish("fail",o.strikes+" × "+sp.strikes.label.toLowerCase())});return;
   case"t-throwin":tAct(()=>{o.strikes++;o.tally++;if(o.tally>=sp.throws.target)tFinish("win",o.tally+" in "+o.strikes+" throws.");else if(o.strikes>=sp.throws.max)tFinish("fail","Out of throws.")});return;
-  case"t-throwout":tAct(()=>{o.strikes++;if(o.strikes>=sp.throws.max)tFinish("fail","Out of throws.")});return;
+  case"t-throwout":tAct(()=>{o.strikes++;if(sp.throws.row)o.tally=0;if(o.strikes>=sp.throws.max)tFinish("fail","Out of throws.")});return;
   case"t-check":tAct(()=>{const i=+D.i;if(o.list.includes(i))o.list=o.list.filter(x=>x!==i);else o.list.push(i);const tg=sp.listTarget||sp.list.length;const reqOk=!(sp.req||[]).some(r=>!o.list.includes(r));if(o.list.length>=tg&&reqOk)tFinish("win",o.list.length+" of "+sp.list.length+".")});return;
   case"t-wstart":tAct(()=>{o.wStart=now()});return;
   case"t-pause":tAct(()=>{o.wStart=null;o.strikes++;if(o.strikes>=sp.strikes.max)tFinish("fail","Paused twice.");else tLog("Paused. One attempt left.")});return;
@@ -4011,7 +4001,7 @@ document.addEventListener("click",e=>{
   case"t-holdstart":tAct(()=>{o.hStart=now()});return;
   case"t-studystart":tAct(()=>{o.sEnd=now()+60000});return;
   case"t-dblcheck":tAct(()=>{if(o.dc==null||o.sc==null)return;tFinish(Math.abs(o.dc-o.sc)<=2?"win":"fail","Said "+o.dc+", counted "+o.sc+".")});return;
-  case"t-call":tAct(()=>{o.call=D.v;o.dispute=false});return;
+  case"t-call":tAct(()=>tFinish(D.v));return;
   case"t-accept":tAct(()=>tFinish(o.call));return;
   case"t-dispute":tAct(()=>{o.dispute=true;tLog("Disputed. Replaying the clip.")});return;
   case"t-agree":tAct(()=>tFinish(D.v));return;
@@ -4032,7 +4022,7 @@ setInterval(()=>{
  if(MODE!=="teams"||!TM.my||!me())return;
  const T=me(),o=T.open;let changed=false;
  if(o&&o.started&&!o.awaitSecond&&!o.expired&&!T.sz){const sp=spec(o);
-  if(o.tEnd&&now()>=o.tEnd&&!(o.id==="G0"&&!o.lock)){o.expired=true;tLog(sp.n+": time is up. Camera rules.");tToast("Time is up: "+sp.n,"Camera rules it a fail, or grants two more minutes.");changed=true}
+  if(o.tEnd&&now()>=o.tEnd&&!(o.id==="G0"&&!o.lock)){o.expired=true;tLog(sp.n+": time is up. Call it.");tToast("Time is up: "+sp.n,"Call it a fail, or grant two more minutes.");changed=true}
   else if(sp.lap&&o.lapEnd&&now()>=o.lapEnd){o.strikes++;o.lapEnd=null;o.tally=0;if(o.strikes>=sp.strikes.max)tFinish("fail","Out of time twice.");else tLog("Out of time. One attempt left.");changed=true}
   else if(sp.watch&&o.wStart&&now()-o.wStart>=sp.watch*1000){tFinish("win","90 seconds.");changed=true}
   else if(sp.hold&&o.hStart&&now()-o.hStart>=sp.hold*1000){tFinish("win",sp.hold+" seconds.");changed=true}
@@ -4049,7 +4039,7 @@ setInterval(()=>{
   if(q("lapleft")&&o.lapEnd)q("lapleft").textContent=fmt(o.lapEnd-now());
   if(q("hold")&&o.hStart)q("hold").textContent=Math.min(spec(o).hold,Math.floor((now()-o.hStart)/1000));
   if(q("study")&&o.sEnd)q("study").textContent=fmt(o.sEnd-now())}
- if(T.sz&&document.getElementById("szleft"))document.getElementById("szleft").textContent=fmt(T.sz.end-now());
+ if(T.sz&&document.getElementById("szleft")){document.getElementById("szleft").textContent=fmt(T.sz.end-now());if(now()>=T.sz.end)tRender()}
  // a heartbeat keeps the relay's copy fresh and tells the others we're alive
  if(++tBeat%45===0)tPublish();
  if(TM.show==="live"&&tBeat%5===0)tOpenShow("live");
@@ -4060,6 +4050,7 @@ function teamsBoot(A){
  TM.phone=lsGet("turf.phone")||rid(10);lsSet("turf.phone",TM.phone);tApplyTeamText();
  const g=lsGet(TKEY);
  if(A.intent==="host"){TM.setup=tSetupDefaults();TM.relay=TM.setup.relay;tRender();return}
+ if(A.intent==="local"){TM.setup=tSetupDefaults();TM.setup.local=true;TM.relay="local";tRender();return}
  if(A.intent==="join"&&!(g&&g.code&&A.joinCode===g.code)){
   TM.join={code:A.joinCode||"",waiting:false,err:null};TM.relay=A.relay||"hivemq";
   if(!RELAYS.find(r=>r.id===TM.relay)){TM.join.custom=true;TM.join.customUrl=TM.relay}
@@ -4090,8 +4081,9 @@ function homeRender(){
   <div class="small muted ht-hint" hidden>Swipe the map to see the whole board.</div>
   <div class="mode"><h2 class="d">Teams</h2><p>Two to six teams of two race the same board, each on its own phone, all synced live. Complete a card to buy a station; fail it and every team bids. Steal stations with trivia duels.</p>
    <div class="row"><button class="ink bigbtn" data-act="h-host">Start a game</button><button class="bigbtn" data-act="h-join">Join with a code</button></div></div>
-  <div class="mode"><h2 class="d">Two players, one phone</h2><p>The original. Pass the phone every hop: one of you plays, the other films. Hubs and failed cards go to bidding.</p>
-   <div class="row one"><button class="bigbtn${clLive?" ink":""}" data-act="h-classic">${clLive?"Resume the "+esc(CITY.short)+" game":"Play "+esc(CITY.name)}</button></div></div>
+  <div class="mode"><h2 class="d">One phone, everyone</h2><p>Two to six players sharing one phone, each with their own colour. Same cards, auctions, duels and curses: pass the phone to whoever is up.</p>
+   <div class="row one"><button class="bigbtn" data-act="h-local">Play ${esc(CITY.name)} on this phone</button></div>
+   <button class="linkbtn" data-act="h-classic">${clLive?"Resume the original two-player "+esc(CITY.short)+" game":"The original two-player game"}</button></div>
   <div class="homefoot">On iPhone, open this page in Safari, tap Share, then Add to Home Screen. It opens full screen like an app.</div>
  </div>`;
  homeThumbFit();
@@ -4103,6 +4095,7 @@ document.addEventListener("click",e=>{
  if(a==="h-city"){lsSet(APP_KEY,Object.assign(appState(),{city:b.dataset.c}));loadCity(b.dataset.c);homeRender();return}
  if(a==="h-classic"){enterMode("classic",CITY.id);return}
  if(a==="h-host"){enterMode("teams",CITY.id,{intent:"host"});return}
+ if(a==="h-local"){enterMode("teams",CITY.id,{intent:"local"});return}
  if(a==="h-join"){enterMode("teams",CITY.id,{intent:"join"});return}
  if(a==="h-resume"){const tm=teamsSaved();enterMode("teams",tm.city,{intent:"resume"});return}
 });
