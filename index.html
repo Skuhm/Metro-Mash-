@@ -545,6 +545,7 @@ html,body{height:100%}
 body{height:var(--vvh,100dvh)}
 /* room to scroll the last fields above the keyboard */
 .stack{padding-bottom:40vh}
+input,select,textarea{scroll-margin-top:72px}
 
 </style>
 </head>
@@ -4133,10 +4134,11 @@ appBoot();
 (function(){const vv=window.visualViewport;
  // with the keyboard up, Safari shrinks and offsets the visual viewport: follow it, and keep the field being typed in on screen
  const typing=()=>{const a=document.activeElement;return a&&/INPUT|SELECT|TEXTAREA/.test(a.tagName)?a:null};
- const show=()=>{const a=typing();if(a)a.scrollIntoView({block:"center"})};
+ const show=()=>{const a=typing();if(a)a.scrollIntoView({block:"start"})};
  let t=null;
- // one settle per burst of viewport events: Safari fires several while the keyboard animates, and reacting to each one made the screen jump
- const fit=()=>{clearTimeout(t);t=setTimeout(()=>{if(vv)document.documentElement.style.setProperty("--vvh",Math.round(vv.height)+"px");if(typing())show();else if(window.scrollY)window.scrollTo(0,0)},120)};
+ // the app is sized to the visible viewport only while no field has focus: resizing under the keyboard blanked the screen on iPhones.
+ // While typing, the field is scrolled to the top of the screen instead, above the keyboard.
+ const fit=()=>{clearTimeout(t);t=setTimeout(()=>{if(typing()){show();return}if(vv)document.documentElement.style.setProperty("--vvh",Math.round(vv.height)+"px");if(window.scrollY)window.scrollTo(0,0)},120)};
  if(vv)vv.addEventListener("resize",fit);window.addEventListener("resize",fit);window.addEventListener("orientationchange",()=>setTimeout(fit,300));
  document.addEventListener("focusin",e=>{if(/INPUT|SELECT|TEXTAREA/.test(e.target.tagName))setTimeout(show,400)});
  document.addEventListener("focusout",()=>setTimeout(fit,250));
