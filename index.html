@@ -539,6 +539,11 @@ body.oncard main{padding-bottom:calc(128px + env(safe-area-inset-bottom,0px))}
 .tdot.sw{border:0;padding:2px 8px;min-height:0;font:inherit;background:var(--raise);border-radius:99px}
 .tdot.sw:active{transform:scale(.95)}
 
+/* fit the visible part of the browser, not the layout viewport: Safari's toolbars otherwise hide the top HUD and the bottom chips */
+html,body{height:100%}
+@supports(height:100dvh){html,body{height:100dvh}}
+body{height:var(--vvh,100dvh)}
+
 </style>
 </head>
 <body>
@@ -3767,9 +3772,11 @@ function tCreate(){
  if(!U.local&&U.relay==="custom"&&!/^wss?:\/\//.test(relay)){tFlash("Relay address","A custom relay starts with wss://","Curse");tRenderOv();return}
  const teams=U.teams.slice(0,n).map((t,i)=>({id:"t"+(i+1),name:(t.name||TEAM_NAMES[i]).trim().slice(0,16)||TEAM_NAMES[i],mates:t.m.slice(0,t.pc).map(x=>x.trim().slice(0,24)),col:t.col||T_DEFCOL[i],start:U.start==="spread"?CITY.ends[i%CITY.ends.length]:START_ID}));
  const meta={v:2,rev:1,city:CITY.id,startedAt:now(),stopTs:d.getTime(),start:U.start,teams,host:TM.phone,done:false};
- TM.code=newCode();TM.relay=relay;TM.meta=meta;TM.teams={};for(const t of teams)TM.teams[t.id]=tFresh(t,meta);TM.my=U.local?teams[0].id:null;TM.setup=null;
+ TM.code=newCode();TM.relay=relay;TM.meta=meta;TM.teams={};for(const t of teams)TM.teams[t.id]=tFresh(t,meta);TM.my=U.local?teams[Math.floor(Math.random()*teams.length)].id:null;TM.setup=null;
+ if(U.local)TM.firstToss=TM.my;
  lsSet(APP_KEY,Object.assign(appState(),{intent:"resume",joinCode:null}));
  tApplyTeamText();tInvalidate();tSave();tConnect();tRender();
+ if(TM.firstToss){tFlash("Coin toss",tName(TM.firstToss)+" goes first. Pass the phone when it's the next player's turn: tap their colour at the top.","Take");TM.firstToss=null;tRenderOv()}
 }
 function tRenderJoin(){
  const J=TM.join,top=$("#top"),m=$("#main");
@@ -4119,6 +4126,10 @@ function appBoot(){
  MODE="home";homeRender();
 }
 appBoot();
+
+// Mobile Safari: size the app to the visible viewport, and never let the page itself scroll
+(function(){const vv=window.visualViewport;const fit=()=>{if(vv)document.documentElement.style.setProperty("--vvh",Math.round(vv.height)+"px");if(window.scrollY)window.scrollTo(0,0)};
+ if(vv){vv.addEventListener("resize",fit);vv.addEventListener("scroll",fit)}window.addEventListener("resize",fit);window.addEventListener("orientationchange",()=>setTimeout(fit,300));fit()})();
 
 </script>
 <script>if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{})</script>
