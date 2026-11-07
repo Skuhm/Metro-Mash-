@@ -11,7 +11,7 @@ const {chromium,phone,act}=require('./h.js');
  ok(!(await ev(()=>tLocked())),"game is still live");
  await ev(()=>{TM.tab="more";tRender()});await pg.waitForTimeout(300);await ev(()=>{const o=document.querySelector('#ov');if(o&&!o.hidden)o.click()});await pg.waitForTimeout(300);
  const html=await pg.$eval('#main',e=>e.innerText);
- ok(/Live count/.test(html)&&!/Stars \d|Explorer|Showman|Highwayman|Lockpick/.test(html),"More tab shows no bonus-star line while live");
+ ok(/Live count/.test(html)&&/Monies \d+ · Stars \d+ · Curses \d+/.test(html)&&!/Bonus|Explorer|Showman|Highwayman|Lockpick/.test(html),"More tab shows no bonus-star line while live");
  await pg.screenshot({path:'qa/stars_live.png'});
  // hard stop: lock the game
  await ev(()=>{TM.meta.done=true;tRender()});await pg.waitForTimeout(300);
@@ -19,6 +19,6 @@ const {chromium,phone,act}=require('./h.js');
  ok(fin.R[me_].names.some(x=>x.startsWith("Showman"))&&fin.R[me_].stars>=3,"final count awards Showman to the team with the card: "+JSON.stringify(fin.R[me_].names));
  ok(Object.values(fin.R).every(r=>r.names.some(x=>/Explorer \(shared\)/.test(x))),"final count shares Explorer");
  const html2=await pg.$eval('#main',e=>e.innerText);
- ok(/Final count/.test(html2)&&/Stars .*Showman/.test(html2),"More tab shows bonus stars at the final count");
+ ok(/Final count/.test(html2)&&/Bonus: Showman/.test(html2),"More tab shows bonus stars at the final count");
  await pg.screenshot({path:'qa/stars_final.png'});
  console.log(n+" checks, "+bad+" failed; errors:",H.errs.slice(0,3));await b.close()})();
