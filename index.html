@@ -3863,6 +3863,8 @@ function tRender(){
  if(TM.net==="insecure"){top.innerHTML=`<div class="r"><div><div class="lbl">Metro Mash · Teams</div><h1 class="d">Open it from a web address</h1></div><button class="back" data-act="t-home">‹ All games</button></div>`;m.innerHTML=`<div class="stack"><div class="card">Team games encrypt everything with the game code, and browsers only allow that on pages opened from an https address. Put this file on GitHub Pages or Netlify and open that link.</div></div>`;return}
  if(!TM.meta){if(TM.setup)tRenderSetup();else tRenderJoin();tRenderOv();return}
  if(!TM.my||!TM.teams[TM.my]){tRenderPick();tRenderOv();return}
+ // one phone: the coin toss card waits until the tutorial is out of the way, then stays until it's tapped
+ if(tLocal()&&TM.meta.first&&!TM.meta.tossShown&&!(typeof xp!=="undefined"&&xp)){TM.meta.tossShown=true;tFlash("Coin toss",tName(TM.meta.first)+" goes first. Pass the phone when it's the next player's turn: tap their colour at the top.","Take");TM.revealUntil=now()+1e10;tSave()}
  document.body.classList.add("playing");document.body.classList.toggle("onmap",TM.tab==="map");document.body.classList.toggle("oncard",TM.tab==="cards");
  if(TM.tab!=="map")tRenderTop(top);
  m.classList.toggle("maptab",TM.tab==="map");
@@ -3979,7 +3981,7 @@ document.addEventListener("click",e=>{
   case"t-create":tCreate();return;
   case"t-switch":{if(!TM.teams[D.t]||D.t===TM.my)return;TM.my=D.t;TM.tab="map";TM.sel=null;tSave();tRender();tFlash("Pass the phone",tName(D.t)+" is playing now.","Take");return}
   case"t-joingo":tJoinGo();return;
-  case"t-pickteam":{if(!TM.teams[D.t])return;TM.my=D.t;TM.tab="map";TM.join=null;tSave();if(TM.meta.first)tFlash("Coin toss",tName(TM.meta.first)+(TM.meta.first===D.t?" (you) lead off.":" lead off.")+" Every team moves at once, so get going.","Take");if(tProcessIncoming())tCommitQuiet();tPublish();tRender();if(!lsGet("turf.teams.seenhelp")){lsSet("turf.teams.seenhelp",1);xpOpen("help")}return}
+  case"t-pickteam":{if(!TM.teams[D.t])return;TM.my=D.t;TM.tab="map";TM.join=null;tSave();if(tProcessIncoming())tCommitQuiet();tPublish();tRender();if(!lsGet("turf.teams.seenhelp")){lsSet("turf.teams.seenhelp",1);xpOpen("help")}return}
   case"t-copylink":{const l=tInviteLink();try{navigator.clipboard.writeText(l).then(()=>{tFlash("Copied","The invite link is on your clipboard.","Take");tRenderOv()},()=>{tFlash("Invite link",l,"Take");tRenderOv()})}catch(err){tFlash("Invite link",l,"Take");tRenderOv()}return}
   case"t-qr":tShowQR();return;
   case"t-howto":xpOpen("help");return;
