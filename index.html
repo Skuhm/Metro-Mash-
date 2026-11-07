@@ -624,7 +624,9 @@ let MODE="home";
 // scoring areas, map decor, explainer scenes and the copy that names the place. loadCity() turns one into the globals below.
 const CITIES={};
 let CITY=null,STATIONS=[],ST={},START_ID=null,LINE_PATHS={},LINES=[],LINE_NAME={},RAIL_MODES=[],EDGES=[],ADJ={},EDGE={},LOCKS={},LOCK_IDS=[],MAJ=[],LINE_ORDER=[],LCOL={},SHARED={};
-const START=8,HIJACK=5,TKO_CAP=10;
+const START=50,HIJACK=5,TKO_CAP=10;
+// a station is worth its stars at the count, and costs 5 monies per star to buy
+const STAR_COST=10;   // monies per star: a 2-star station costs 20
 function loadCity(id){
  const C=CITIES[id]||CITIES.la;CITY=C;
  STATIONS=C.stations;ST=Object.fromEntries(STATIONS.map(s=>[s.id,s]));START_ID=C.start;
@@ -835,7 +837,7 @@ CITIES.la={
  xp:{
   path:["westlake","wvermont","vbeverly","vsm","vsunset"],
   card:["vsunset","hwestern"],
-  buy:{id:"broadway",focus:["ltokyo","broadway","bunker"],float:"−2"},
+  buy:{id:"broadway",focus:["ltokyo","broadway","bunker"],float:"−10"},
   bid:{id:"metro",prior:{broadway:0},focus:["metro","pershing","westlake"]},
   take:{st:{westlake:1,wvermont:0,wnormandie:1,broadway:0},cur:"wvermont",focus:["westlake","wvermont","wnormandie"]},
   sealed:"hhighland",
@@ -977,7 +979,7 @@ CITIES.sea={
  xp:{
   path:["stadium","sodo","beacon","mtbaker","columbia"],
   card:["northgate","roosevelt"],
-  buy:{id:"roosevelt",focus:["northgate","roosevelt","udistrict"],float:"−2"},
+  buy:{id:"roosevelt",focus:["northgate","roosevelt","udistrict"],float:"−10"},
   bid:{id:"caphill",prior:{roosevelt:0},focus:["caphill","fh0","westlake"]},
   take:{st:{symphony:1,pioneer:0,idc:1,roosevelt:0},cur:"pioneer",focus:["symphony","pioneer","idc"]},
   sealed:"westlake",
@@ -2028,11 +2030,11 @@ const minsLeft=()=>Math.max(0,Math.round((stopAt()-now())/60000));
 const pn=i=>S.players[i].name||("Player "+(i+1));
 const up=()=>S.up,cam=()=>1-S.up;
 function log(t){S.log.unshift({t:now(),x:t});if(S.log.length>600)S.log.length=600}
-function price(id){return ST[id].p*(S.st[id].gild?2:1)}
+function price(id){return ST[id].p*STAR_COST*(S.st[id].gild?2:1)}
 function held(p){return STATIONS.filter(s=>S.st[s.id].o===p).length}
 function majorities(st){st=st||S.st;const t=[0,0],rows=[];for(const m of MAJ){const c=[0,1].map(p=>m.ids.filter(id=>st[id].o===p).length);let a=0,b=0;if(c[0]>c[1])a=m.pts;else if(c[1]>c[0])b=m.pts;else if(c[0]){a=b=m.pts/2}t[0]+=a;t[1]+=b;rows.push({m,c,a,b})}return {t,rows}}
 function chainLen(p,st){st=st||S.st;let b=0;for(const line of LINES){let c=0;for(const id of line){c=st[id].o===p?c+1:0;b=Math.max(b,c)}}return b}
-function tkoPrice(id){return S.st[id].gild?TKO_CAP:Math.min(TKO_CAP,2*ST[id].p)}
+function tkoPrice(id){return S.st[id].gild?TKO_CAP*STAR_COST:Math.min(TKO_CAP,2*ST[id].p)*STAR_COST}
 function unvisited(){return STATIONS.filter(s=>!S.st[s.id].vis)}
 function sealed(id){const v=S.st[id];return !!ST[id].lock&&v.o==null}
 function dist(from){const d={[from]:0},q=[from];while(q.length){const a=q.shift();for(const b of ADJ[a]){const t=d[a]+EDGE[a+">"+b].t;if(d[b]==null||t<d[b]){d[b]=t;if(!q.includes(b))q.push(b)}}}return d}
@@ -2463,7 +2465,7 @@ function stationPanel(id){
   else if(o2&&!o2.lock&&!spec(o2).span&&!spec(o2).ride)x+=`<div class="banner">${esc(pn(c))}'s station. Pass ${esc(spec(o2).n)} here and it's yours.</div><div class="small muted">Run it below.</div>`;
   else x+=`<div class="banner">${esc(pn(c))}'s station.${h.first===u?"":" No pass this hop."}</div>`;
   x+=`<div class="row"><button class="p${u+1} bigbtn" data-act="tko" ${can?"":"disabled"}>Buy it out for ${tk}${v.gild?" (gilded)":""}</button><button class="bigbtn" data-act="done">Leave it</button></div>`;
-  if(!can)x+=`<div class="small muted">${S.fx[u].jury?"Jury Duty: no buying.":"Buyout costs "+tk+" (double its value, capped at "+TKO_CAP+")."}</div>`;
+  if(!can)x+=`<div class="small muted">${S.fx[u].jury?"Jury Duty: no buying.":"Buyout costs "+tk+" (double its value, capped at "+TKO_CAP*STAR_COST+")."}</div>`;
  }else x+=`<div class="banner ok">Yours.</div><button class="ink bigbtn" data-act="done">Ride on</button>`;
  return x+`</div>`;
 }
@@ -2625,7 +2627,7 @@ function renderOv(){
   <li><b>Doors close.</b> Up picks the direction: tap a neighbouring station on the map or in the list. The app draws Up a card. Up swaps every hop.</li>
   <li><b>Play the card.</b> Train cards finish before the doors open. Platform cards happen at the next station. Pass it and you bank its monies; fail it and you lose half of them.</li>
   <li><b>Doors open.</b> Pass the card and you may buy the station at its price. Fail, veto, or pass on buying: it goes to auction, both of you bidding. Big hubs always auction.</li>
-  <li><b>Their station:</b> pass the card there and it's yours. Or buy it out for double its value, capped at ${TKO_CAP}. No rent.</li>
+  <li><b>Their station:</b> pass the card there and it's yours. Or buy it out for double its value, capped at ${TKO_CAP*STAR_COST}. No rent.</li>
   <li><b>Gold stations</b> are sealed: whoever is Up opens the challenge there, after the card. Fail it and it stays sealed; the other player's attempt pays double. Pay ${HIJACK} monies to Hijack a hop and stay Up out of turn. Most stars at ${esc(S.stop)} wins: stations, longest chain, monies, bonus stars.</li></ol>
   <button class="ink bigbtn" data-act="howtoclose">Got it</button></div>`;return}
  if(reveal&&now()<revealUntil){
@@ -2840,7 +2842,7 @@ function classicXpSteps(){
    over:()=>cardFace("Take",T0.n,`<p class="small">${esc(T0.d)}</p>`)},
   {t:"Win it, or pay for it",b:"Pass the card and you bank its chips. Fail it and you lose half of them, and the other player gets first option on the station.",
    scene:()=>({st:xst(),cur:X.card[0],next:X.card[1],up:0,focus:X.card,z:2.6})},
-  {t:"Pass it, and you can buy the stop",b:"Pass the card and you get first option on the station at its price: 1, 2 or 4 chips.",
+  {t:"Pass it, and you can buy the stop",b:"Pass the card and you get first option on the station for 10 monies per star: 10, 20 or 40.",
    scene:()=>({st:xst({[X.buy.id]:0}),cur:X.buy.id,up:0,pops:[X.buy.id],floats:[{id:X.buy.id,t:X.buy.float,c:"var(--p1)"}],focus:X.buy.focus,z:2.4})},
   {t:"Fail it, and it goes to bidding",b:"Fail or veto the card, or arrive at a 4-star hub, and nobody can buy it outright. Either of you can bid in steps of 1, 5 or 10, or leave it unowned."+(hub?" "+ST[START_ID].n+" is a hub, so the day opens with a bid.":"")+" Try it.",w:"bid",
    scene:w=>({st:xst(Object.assign({},X.bid.prior,w.sold!=null?{[X.bid.id]:w.sold}:{})),cur:X.bid.id,up:1,pops:w.sold!=null?[X.bid.id]:[],focus:X.bid.focus,z:2.4})},
@@ -3109,7 +3111,7 @@ function tWorld(){
  return _W={own,prev,claims:applied,fails,gild,held,auctions,duels,takes};
 }
 const tSealed=id=>!!ST[id].lock&&tWorld().own[id]==null;
-const tPrice=id=>ST[id].p;
+const tPrice=id=>ST[id].p*STAR_COST;
 const tGildedUntil=id=>{const g=tWorld().gild[id];return g&&now()<g+GILD_MS?g+GILD_MS:0};
 const tOpenAuction=sid=>tWorld().auctions.find(A=>A.s===sid&&!A.closed)||null;
 function tClaim(sid,how){const T=me();T.claims.push({id:T.id+"."+rid(7),s:sid,t:now(),how});tInvalidate()}
@@ -3277,7 +3279,7 @@ function tMaybeAuction(){
  const open=tOpenAuction(id);if(open){h.auc=open.id;return}
  const e=tEv({k:"auction",s:id,end:now()+AUC_MS});h.auc=e.id;
  tLog(ST[id].n+" goes to auction. Every team can bid for two minutes.");
- tTip("auction","Auction","Fail or veto a card at an unowned station and it goes up for auction. Every team bids from their own phone for two minutes, in steps of 1, 5 or 10. Highest bid wins and pays the bank.");
+ tTip("auction","Auction","Fail or veto a card at an unowned station and it goes up for auction. Every team bids from their own phone for two minutes, in steps of 5, 10 or 20. Highest bid wins and pays the bank.");
 }
 function tSetFirst(out){
  const T=me(),h=T.hop;if(!h||h.settled)return;
@@ -3413,7 +3415,7 @@ function tAucRow(A){
  const btn=k=>{const n=base+k;return `<button data-act="t-bid" data-ref="${A.id}" data-n="${n}" ${why||lead||n*fare>T.bank?"disabled":""}>Bid ${n}</button>`};
  return `<div class="aucrow"><div class="ab-t"><b>Auction: ${esc(ST[A.s].n)}</b><span>worth ${ST[A.s].p} · <span class="num" data-live="auc" data-end="${A.end}">${fmt(A.end-now())}</span></span></div>
   <div class="ab-h small">${hi?(lead?"You lead with "+hi.n:esc(tName(hi.team))+" leads with "+hi.n):"No bids yet. "+(A.by===T.id?"You failed the card here; you can still bid.":esc(tName(A.by))+" failed the card here.")}</div>
-  ${why?`<div class="small muted">${esc(why)}</div>`:`<div class="ab-b">${btn(1)}${btn(5)}${btn(10)}</div>`}</div>`;
+  ${why?`<div class="small muted">${esc(why)}</div>`:`<div class="ab-b">${btn(5)}${btn(10)}${btn(20)}</div>`}</div>`;
 }
 function tAucBar(){const W=tWorld(),open=W.auctions.filter(A=>A.open);return open.length?`<div class="aucbar">${open.map(tAucRow).join("")}</div>`:""}
 
@@ -3596,7 +3598,7 @@ function tRenderMap(m){
  const own=JSON.stringify(W.own),pops=[];if(TM.lastOwn){const old=JSON.parse(TM.lastOwn);for(const s of STATIONS)if((old[s.id]??null)!==(W.own[s.id]??null))pops.push(s.id)}TM.lastOwn=own;
  const h=T.hop,next=h&&!h.arrived?h.to:(!h||h.settled)?(T.fx.wrong?T.fx.wrong.to:(TM.sel&&ADJ[T.cur].includes(TM.sel))?TM.sel:tNextRec()):null;
  let info="";
- if(TM.sel&&TM.sel!==T.cur){const s=ST[TM.sel],ow=W.own[TM.sel];info=`<div class="selinfo"><b>${esc(s.n)}</b> · ${ow==null?(tSealed(TM.sel)?"Sealed":"Unowned"):ow===T.id?"Yours":"Owned by "+esc(tName(ow))} · price ${tPrice(TM.sel)}${tGildedUntil(TM.sel)?" · gilded until "+hhmm(tGildedUntil(TM.sel)):""}${tOpenAuction(TM.sel)?" · up for auction":""}</div>`}
+ if(TM.sel&&TM.sel!==T.cur){const s=ST[TM.sel],ow=W.own[TM.sel];info=`<div class="selinfo"><b>${esc(s.n)}</b> · ${ow==null?(tSealed(TM.sel)?"Sealed":"Unowned"):ow===T.id?"Yours":"Owned by "+esc(tName(ow))} · ${ST[TM.sel].p} ${ST[TM.sel].p===1?"star":"stars"} · costs ${tPrice(TM.sel)}${tGildedUntil(TM.sel)?" · gilded until "+hhmm(tGildedUntil(TM.sel)):""}${tOpenAuction(TM.sel)?" · up for auction":""}</div>`}
  const chrome=`${tHud()}<div class="mapctl"><button data-act="t-zoom" data-z="1.25" aria-label="Zoom in">+</button><button data-act="t-zoom" data-z="0.8" aria-label="Zoom out">−</button><button data-act="t-recenter" aria-label="Back to your train">◎</button><button data-act="t-key" aria-pressed="${showKey}">Key</button></div>${tNav(info)}`;
  liveMap(m,tView(),{pops,next},chrome);
  const focusId=T.cur+">"+(next||"");
@@ -3620,7 +3622,7 @@ function tActionBar(){
 function tStationPanel(id){
  const T=me(),s=ST[id],W=tWorld(),ow=W.own[id],pr=tPrice(id),h=T.hop,o=T.open,fare=T.fx.fare?2:1,g=tGildedUntil(id);
  const rideOn=`<button class="ink bigbtn" data-act="t-done">Ride on</button>`;
- let x=`<div class="stp"><div class="hd"><div><h2 class="d">${esc(s.n)}</h2><div class="small muted">${ow==null?(tSealed(id)?"Sealed":"Unowned"):ow===T.id?"Yours":"Owned by "+esc(tName(ow))}${g?" · gilded until "+hhmm(g):""}</div></div><span class="price">${pr}</span></div>`;
+ let x=`<div class="stp"><div class="hd"><div><h2 class="d">${esc(s.n)}</h2><div class="small muted">${ow==null?(tSealed(id)?"Sealed":"Unowned"):ow===T.id?"Yours":"Owned by "+esc(tName(ow))}${g?" · gilded until "+hhmm(g):""}</div></div><span class="price" title="Stars at the count">★ ${s.p}</span></div>`;
  if(ow==null){
   if(tSealed(id)){
    const dbl=Object.keys(W.fails[id]||{}).some(x=>x!==T.id);
@@ -3941,11 +3943,11 @@ function teamsXpSteps(){
   {t:"Race For The Most Stars",b:(tLocal()?"Two to six players, all on this phone.":"Teams")+" race through the "+STATIONS.length+" stops on the train lines to gain the most stations. Bonuses can also be earned to win at the end.",scene:()=>({st:blankSt(),sweep:1})},
   {t:"Draw Cards Between Stops",b:"Complete Takes in between stops to earn monies for buying stations later. Walk or bike between stations and you'll only play a card at the next platform.",
    scene:()=>({st:tst(),cur:X.card[0],next:X.card[1],up:0,focus:X.card,z:2.6}),over:()=>cardFace("Take",T0.n,`<p class="small">${esc(T0.d)}</p>`)},
-  {t:"Win It To Buy It",b:"Complete a station's card to earn monies and the right to buy the station. Veto the card or fail it and you lose monies, and the station goes to auction.",
+  {t:"Win It To Buy It",b:"Complete a station's card to earn monies and the right to buy the station: 10 monies per star, so a 1-star stop costs 10 and a 4-star hub costs 40. Veto the card or fail it and you lose monies, and the station goes to auction.",
    scene:()=>({st:tst({[X.buy.id]:0}),cur:X.buy.id,up:0,pops:[X.buy.id],floats:[{id:X.buy.id,t:X.buy.float,c:"var(--p1)"}],focus:X.buy.focus,z:2.4})},
   {t:"Steal With Smarts",b:"Complete the card at another team's stop and you can challenge them to a Trivia Duel: five city questions, 15 seconds each. They have 20 minutes to beat your score and can't hop stations until they play. Lose, and your next station is off limits until you visit a new one.",w:"duel",
    scene:()=>({st:tst(X.take.st),cur:X.take.cur,up:0,pops:[X.take.cur],focus:X.take.focus,z:2.4})},
-  {t:"Score Stars & Steal Lines",b:"Every station has its own score, but the team that owns the most stations on a line takes that line's bonus; ties split it. Monies you earned add one star per 20, and these bonus stars land at the count. Tap one:",w:"stars",
+  {t:"Score Stars & Steal Lines",b:"Every station you own scores its stars, but the team that owns the most stations on a line takes that line's bonus; ties split it. Monies you earned add one star per 20, and these bonus stars land at the count. Tap one:",w:"stars",
    scene:w=>({st:tst(X.split),hl:MAJ[w.line??0].ids})},
  ];
 }
