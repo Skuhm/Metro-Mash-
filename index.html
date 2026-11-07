@@ -3832,7 +3832,7 @@ function tCreate(){
  if(U.local)TM.firstToss=TM.my;
  lsSet(APP_KEY,Object.assign(appState(),{intent:"resume",joinCode:null}));
  tApplyTeamText();tInvalidate();tSave();tConnect();tRender();
- if(TM.firstToss){tFlash("Coin toss",tName(TM.firstToss)+" goes first. Pass the phone when it's the next player's turn: tap their colour at the top.","Take");TM.firstToss=null;tRenderOv()}
+ if(TM.firstToss){tFlash("Coin toss",tName(TM.firstToss)+" goes first. Pass the phone when it's the next player's turn: tap their colour at the top.","Take");TM.revealUntil=now()+1e10;TM.firstToss=null;tRenderOv()}
 }
 function tRenderJoin(){
  const J=TM.join,top=$("#top"),m=$("#main");
