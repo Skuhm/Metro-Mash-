@@ -4133,10 +4133,14 @@ appBoot();
 (function(){const vv=window.visualViewport;
  // with the keyboard up, Safari shrinks and offsets the visual viewport: follow it, and keep the field being typed in on screen
  const typing=()=>{const a=document.activeElement;return a&&/INPUT|SELECT|TEXTAREA/.test(a.tagName)?a:null};
- const show=()=>{const a=typing();if(a)a.scrollIntoView({block:"center",behavior:"smooth"})};
- const fit=()=>{if(vv){document.documentElement.style.setProperty("--vvh",Math.round(vv.height)+"px");document.body.style.top=Math.round(vv.offsetTop)+"px"}if(window.scrollY&&!typing())window.scrollTo(0,0);if(typing())setTimeout(show,60)};
- if(vv){vv.addEventListener("resize",fit);vv.addEventListener("scroll",fit)}window.addEventListener("resize",fit);window.addEventListener("orientationchange",()=>setTimeout(fit,300));
- document.addEventListener("focusin",e=>{if(/INPUT|SELECT|TEXTAREA/.test(e.target.tagName))setTimeout(show,350)});fit()})();
+ const show=()=>{const a=typing();if(a)a.scrollIntoView({block:"center"})};
+ let t=null;
+ // one settle per burst of viewport events: Safari fires several while the keyboard animates, and reacting to each one made the screen jump
+ const fit=()=>{clearTimeout(t);t=setTimeout(()=>{if(vv)document.documentElement.style.setProperty("--vvh",Math.round(vv.height)+"px");if(typing())show();else if(window.scrollY)window.scrollTo(0,0)},120)};
+ if(vv)vv.addEventListener("resize",fit);window.addEventListener("resize",fit);window.addEventListener("orientationchange",()=>setTimeout(fit,300));
+ document.addEventListener("focusin",e=>{if(/INPUT|SELECT|TEXTAREA/.test(e.target.tagName))setTimeout(show,400)});
+ document.addEventListener("focusout",()=>setTimeout(fit,250));
+ if(vv)document.documentElement.style.setProperty("--vvh",Math.round(vv.height)+"px")})();
 
 </script>
 <script>if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{})</script>
