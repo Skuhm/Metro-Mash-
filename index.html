@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="claude:viewport-fit-sides" content="cover">
 <title>Metro Mash</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -586,6 +586,9 @@ input,select,textarea{scroll-margin-top:72px}
 .startpick{margin-top:0}
 .swatches .sw{width:20px;height:20px}.swatches{gap:4px}
 .swatches{padding:2px 0 0 3px}
+/* iPhones zoom the page into any field whose text is under 16px, which is what dragged the screen around while typing */
+input,select,textarea{font-size:16px!important}
+.mrow input{padding:4px 8px}
 
 </style>
 </head>
