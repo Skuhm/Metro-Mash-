@@ -544,8 +544,48 @@ html,body{height:100%}
 @supports(height:100dvh){html,body{height:100dvh}}
 body{height:var(--vvh,100dvh)}
 /* room to scroll the last fields above the keyboard */
-.stack{padding-bottom:40vh}
 input,select,textarea{scroll-margin-top:72px}
+
+/* team selector: everything on one screen */
+.stack.compact{gap:8px;padding-top:8px}
+.tpicks{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tpick{padding:10px 12px;border-radius:14px;min-height:0}
+.tpick b{font-size:17px}
+.tpick span{font-size:12px}
+.tset{gap:4px;padding:8px 10px}
+.tset .lbl{font-size:11px}
+.tset input{min-height:38px;padding:6px 10px}
+.swatches{gap:5px;margin-top:2px}
+.swatches .sw{width:24px;height:24px;border-width:2px}
+.swatches .sw[aria-checked=true]::after{font-size:11px}
+.mates .row.small button{min-height:32px;padding:4px 10px;font-size:12px}
+.stepper{margin:2px 0}
+.stepper button{min-height:38px}
+.startpick{padding:6px 10px;font-size:12px}
+.stakes button{min-height:44px;padding:6px 10px}
+.stakes button span{font-size:11px}
+.card{padding:10px 12px}
+.card h2.d{font-size:18px}
+#top .r h1.d{font-size:24px}
+
+.tset .r{display:flex;align-items:center;gap:8px}
+.card .r{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.card .r .stepper{margin:0}
+.mrow{display:flex;gap:5px}
+.mrow input{flex:1;min-width:0;font-size:13px}
+.mrow .pc{flex:0 0 34px;min-height:38px;padding:0;font-size:16px}
+.swatches .sw{width:22px;height:22px}
+.tset .lbl{display:none}
+.tset input[data-tf=name]{font-weight:700}
+
+.setrow{display:grid;grid-template-columns:1.4fr 1fr;gap:10px;align-items:end}
+.setrow .lbl{margin-bottom:4px}
+.stakes.slim button{min-height:38px;padding:4px 8px;font-size:13px}
+.stakes.slim button::after{display:none}
+.setrow input[type=time]{min-height:38px;padding:4px 8px}
+.startpick{margin-top:0}
+.swatches .sw{width:20px;height:20px}.swatches{gap:4px}
+.swatches{padding:2px 0 0 3px}
 
 </style>
 </head>
@@ -3753,17 +3793,17 @@ function tSetupDefaults(){
 function tRenderSetup(){
  const U=TM.setup,top=$("#top"),m=$("#main");
  document.body.classList.remove("playing","onmap","oncard");
- top.innerHTML=`<div class="r"><div><div class="lbl">Metro Mash · ${U.local?"One phone":"Teams"}</div><h1 class="d">${esc(CITY.copy.title)}</h1></div><button class="back" data-act="t-home">‹ All games</button></div>`;
+ top.innerHTML=`<div class="r"><div><div class="lbl">Metro Mash · ${esc(CITY.name)}${U.local?" · one phone":""}</div><h1 class="d">Team selector</h1></div><button class="back" data-act="t-home">‹ All games</button></div>`;
  const ends=CITY.ends;
  m.innerHTML=`<div class="stack">
-  <div class="card"><h2 class="d">${U.local?"Players":"Teams"}</h2><div class="small muted">${U.local?"Two to six players on this one phone. Pass it around: whoever is playing taps their colour at the top.":"Two to six teams of one to four. Each team needs one phone with internet; teammates can join on their own phones too."}</div>
-   <div class="stepper"><button data-act="t-n" data-d="-1" ${U.n<=2?"disabled":""} aria-label="One fewer">−</button><b class="num">${U.n} ${U.local?"players":"teams"}</b><button data-act="t-n" data-d="1" ${U.n>=6?"disabled":""} aria-label="One more">+</button></div>
-   ${U.teams.slice(0,U.n).map((t,i)=>`<div class="tset" style="--tc:var(--p${i+1})"><label class="lbl" for="tn${i}">${U.local?"Player":"Team"} ${i+1}</label><input id="tn${i}" data-tf="name" data-i="${i}" value="${esc(t.name)}" autocomplete="off" maxlength="16" placeholder="${U.local?"Name":""}"><div class="mates" ${U.local?"hidden":""}><div class="grid2">${t.m.slice(0,t.pc).map((nm,j)=>`<input id="tm${i}_${j}" data-tf="m" data-i="${i}" data-j="${j}" value="${esc(nm)}" placeholder="Player ${j+1}" autocomplete="off" aria-label="Team ${i+1}, player ${j+1}">`).join("")}</div><div class="row small"><button data-act="t-pc" data-i="${i}" data-d="-1" ${t.pc<=1?"disabled":""}>− player</button><button data-act="t-pc" data-i="${i}" data-d="1" ${t.pc>=4?"disabled":""}>+ player</button><span class="muted">${t.pc} ${t.pc===1?"player":"players"}</span></div></div><div class="swatches" role="radiogroup" aria-label="Team ${i+1} colour">${T_PAL.map(c=>{const taken=U.teams.slice(0,U.n).some((o,j)=>j!==i&&o.col===c[0]);return `<button class="sw" role="radio" style="--sw:${c[2]};--swd:${c[3]}" aria-checked="${t.col===c[0]}" aria-label="${c[1]}${taken?", taken":""}" ${taken?"disabled":""} data-act="t-col" data-i="${i}" data-k="${c[0]}"></button>`}).join("")}</div></div>`).join("")}
+  <div class="card"><div class="r"><h2 class="d">${U.local?"Players":"Teams"}</h2>
+   <div class="stepper"><button data-act="t-n" data-d="-1" ${U.n<=2?"disabled":""} aria-label="One fewer">−</button><b class="num">${U.n} ${U.local?"players":"teams"}</b><button data-act="t-n" data-d="1" ${U.n>=6?"disabled":""} aria-label="One more">+</button></div></div>
+   ${U.teams.slice(0,U.n).map((t,i)=>`<div class="tset" style="--tc:var(--p${i+1})"><label class="lbl" for="tn${i}">${U.local?"Player":"Team"} ${i+1}</label><input id="tn${i}" data-tf="name" data-i="${i}" value="${esc(t.name)}" autocomplete="off" maxlength="16" placeholder="${U.local?"Name":""}"><div class="mates" ${U.local?"hidden":""}><div class="mrow">${t.m.slice(0,t.pc).map((nm,j)=>`<input id="tm${i}_${j}" data-tf="m" data-i="${i}" data-j="${j}" value="${esc(nm)}" placeholder="Player ${j+1}" autocomplete="off" aria-label="Team ${i+1}, player ${j+1}">`).join("")}<button class="pc" data-act="t-pc" data-i="${i}" data-d="-1" ${t.pc<=1?"disabled":""} aria-label="One player fewer">−</button><button class="pc" data-act="t-pc" data-i="${i}" data-d="1" ${t.pc>=4?"disabled":""} aria-label="One player more">+</button></div></div><div class="swatches" role="radiogroup" aria-label="Team ${i+1} colour">${T_PAL.map(c=>{const taken=U.teams.slice(0,U.n).some((o,j)=>j!==i&&o.col===c[0]);return `<button class="sw" role="radio" style="--sw:${c[2]};--swd:${c[3]}" aria-checked="${t.col===c[0]}" aria-label="${c[1]}${taken?", taken":""}" ${taken?"disabled":""} data-act="t-col" data-i="${i}" data-k="${c[0]}"></button>`}).join("")}</div></div>`).join("")}
   </div>
-  <div class="card"><h2 class="d">Where you start</h2><div class="stakes${U.flash?" flash":""}"><button aria-pressed="${U.start==="together"}" data-act="t-start" data-k="together">Together<span>Every team starts at ${esc(ST[START_ID].n)}.</span></button><button aria-pressed="${U.start==="spread"}" data-act="t-start" data-k="spread" ${U.local?"disabled":""}>Spread out<span>${U.local?"Not on one phone: you're all in the same place. ":""}Each team starts at a different end of the board.</span></button></div><div class="startpick${U.flash?" flash":""}" role="status" data-k="${U.start}">${U.start==="together"?`✓ Everyone meets at <b>${esc(ST[START_ID].n)}</b>.`:`✓ Starting spots: ${U.teams.slice(0,U.n).map((t,i)=>`<span class="sp" style="--tc:var(--p${i+1})">${esc(t.name||TEAM_NAMES[i])} · ${esc(ST[ends[i%ends.length]].n)}</span>`).join("")}`}</div></div>
-  <div class="card"><label class="lbl" for="tstop">Hard stop</label><input id="tstop" type="time" data-tf="stop" value="${esc(U.stop)}"><div class="small muted">Everyone's clock ends together. If the time has already passed today, it means tomorrow.</div></div>
-  <details class="card" ${U.relay!==RELAYS[0].id?"open":""} ${U.local?"hidden":""}><summary class="lbl">Sync relay</summary><div class="small muted">Phones talk through a free public relay. Every phone in the game must use the same one; invite links carry it. Messages are encrypted with the game code.</div><select id="trelay" data-tf="relay">${RELAYS.map(r=>`<option value="${r.id}" ${U.relay===r.id?"selected":""}>${r.n}</option>`).join("")}<option value="custom" ${U.relay==="custom"?"selected":""}>Custom (wss://…)</option></select>${U.relay==="custom"?`<input id="tcustom" data-tf="custom" value="${esc(U.custom)}" placeholder="wss://your-broker/mqtt" autocomplete="off">`:""}</details>
+  <div class="card setrow"><div><div class="lbl">Start</div><div class="stakes slim${U.flash?" flash":""}"><button aria-pressed="${U.start==="together"}" data-act="t-start" data-k="together">Together</button><button aria-pressed="${U.start==="spread"}" data-act="t-start" data-k="spread" ${U.local?"disabled":""}>Spread out</button></div></div><div><label class="lbl" for="tstop">Hard stop</label><input id="tstop" type="time" data-tf="stop" value="${esc(U.stop)}"></div></div>
+  <div class="startpick${U.flash?" flash":""}" role="status" data-k="${U.start}">${U.start==="together"?`✓ Everyone starts at <b>${esc(ST[START_ID].n)}</b>.`:`✓ ${U.teams.slice(0,U.n).map((t,i)=>`<span class="sp" style="--tc:var(--p${i+1})">${esc(t.name||TEAM_NAMES[i])} · ${esc(ST[ends[i%ends.length]].n)}</span>`).join("")}`}</div>
   <button class="ink bigbtn" data-act="t-create">${U.local?"Start the game":"Create the game"}</button>
+  <details class="card" ${U.relay!==RELAYS[0].id?"open":""} ${U.local?"hidden":""}><summary class="lbl">Sync relay</summary><div class="small muted">Phones talk through a free public relay. Every phone in the game must use the same one; invite links carry it. Messages are encrypted with the game code.</div><select id="trelay" data-tf="relay">${RELAYS.map(r=>`<option value="${r.id}" ${U.relay===r.id?"selected":""}>${r.n}</option>`).join("")}<option value="custom" ${U.relay==="custom"?"selected":""}>Custom (wss://…)</option></select>${U.relay==="custom"?`<input id="tcustom" data-tf="custom" value="${esc(U.custom)}" placeholder="wss://your-broker/mqtt" autocomplete="off">`:""}</details>
  </div>`;
  m.querySelectorAll("[data-tf]").forEach(el=>el.addEventListener(el.tagName==="SELECT"?"change":"input",()=>{const k=el.dataset.tf,i=+el.dataset.i;if(k==="m")U.teams[i].m[+el.dataset.j]=el.value;else if(k==="name")U.teams[i][k]=el.value;else U[k]=el.value;if(k==="relay")tRender()}));
  U.flash=0;
@@ -3801,10 +3841,9 @@ function tJoinGo(){
 }
 function tRenderPick(){
  const top=$("#top"),m=$("#main");document.body.classList.remove("playing","onmap","oncard");
- top.innerHTML=`<div class="r"><div><div class="lbl">Metro Mash · ${esc(CITY.name)} · game ${esc(TM.code)}</div><h1 class="d">Which team is this phone?</h1></div><button class="back" data-act="t-home">‹ All games</button></div>`;
- m.innerHTML=`<div class="stack"><div class="card invite"><div class="lbl">Game code</div><div class="code num">${TM.code}</div><div class="small muted">Other phones: open Metro Mash, tap Join with a code, type this in. ${TM.net==="live"?"Synced.":"Connecting…"}</div><div id="qr" class="qr"></div><div class="row"><button data-act="t-copylink">Copy invite link</button><button data-act="t-qr">Show QR code</button></div></div>
-  ${teamList().map(t=>`<button class="tpick" style="--tc:${tCol(t.id)}" data-act="t-pickteam" data-t="${t.id}"><b>Team ${esc(t.name)}</b><span>${esc(t.mates.filter(Boolean).join(" & ")||t.mates.length+(t.mates.length===1?" player":" players"))} · starts at ${esc(ST[t.start].n)}${TM.teams[t.id]?"":" · waiting for its state…"}</span></button>`).join("")}
-  <button class="bigbtn" data-act="t-howto">How the game works</button></div>`;
+ top.innerHTML=`<div class="r"><div><div class="lbl">Metro Mash · ${esc(CITY.name)} · game ${esc(TM.code)}</div><h1 class="d">Team selector</h1></div><button class="back" data-act="t-home">‹ All games</button></div>`;
+ m.innerHTML=`<div class="stack compact"><div class="tpicks">${teamList().map(t=>`<button class="tpick" style="--tc:${tCol(t.id)}" data-act="t-pickteam" data-t="${t.id}"><b>${esc(t.name)}</b><span>${esc(t.mates.filter(Boolean).join(" & ")||t.mates.length+(t.mates.length===1?" player":" players"))}</span></button>`).join("")}</div>
+  <button class="bigbtn" data-act="t-howto">How the game works</button><div class="card invite"><div class="lbl">Game code</div><div class="code num">${TM.code}</div><div class="small muted">Other phones: open Metro Mash, tap Join with a code, type this in. ${TM.net==="live"?"Synced.":"Connecting…"}</div><div id="qr" class="qr"></div><div class="row"><button data-act="t-copylink">Copy invite link</button><button data-act="t-qr">Show QR code</button></div></div></div>`;
 }
 function tRender(){
  if(MODE!=="teams")return;
