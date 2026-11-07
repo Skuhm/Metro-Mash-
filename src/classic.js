@@ -310,7 +310,7 @@ function score(){
  const ch=majorities().t;
  const cr=[0,1].map(p=>Math.floor((S.credits[p]+S.bank[p])/20));
  const stars=[0,0],names=[[],[]];
- for(const [k,lab] of [["cards","Showman"],["tko","Highwayman"],["auc","Auctioneer"],["locks","Lockpick"]]){
+ if(S.done)for(const [k,lab] of [["cards","Showman"],["tko","Highwayman"],["auc","Auctioneer"],["locks","Lockpick"]]){
   const a=S.stats[k][0],b=S.stats[k][1];
   if(a>b){stars[0]+=3;names[0].push(lab)}else if(b>a){stars[1]+=3;names[1].push(lab)}else{stars[0]+=1.5;stars[1]+=1.5;names[0].push(lab+" (split)");names[1].push(lab+" (split)")}
  }
@@ -590,9 +590,9 @@ function renderCount(m){
   <div>Property · ${h[0]} / ${h[1]} stations</div><div class="num">${r.prop[0]}</div><div class="num">${r.prop[1]}</div>
   <div>Line majorities</div><div class="num">${r.ch[0]}</div><div class="num">${r.ch[1]}</div>${majorities().rows.map(x=>`<div class="small muted" style="padding-left:10px">${esc(x.m.n)} · ${x.c[0]} / ${x.c[1]} of ${x.m.ids.length} · worth ${x.m.pts}</div><div class="small num muted">${x.a}</div><div class="small num muted">${x.b}</div>`).join("")}
   <div>Monies earned ÷ 20</div><div class="num">${r.cr[0]}</div><div class="num">${r.cr[1]}</div>
-  <div>Bonus stars</div><div class="num">${r.stars[0]}</div><div class="num">${r.stars[1]}</div>
+  ${S.done?`<div>Bonus stars</div><div class="num">${r.stars[0]}</div><div class="num">${r.stars[1]}</div>`:`<div class="muted">Bonus stars</div><div class="num muted">?</div><div class="num muted">?</div>`}
   <div class="d">Total</div><div class="big num" ${col(0)}>${r.tot[0]}</div><div class="big num" ${col(1)}>${r.tot[1]}</div></div>
- <div class="small"><b>${esc(pn(0))}:</b> ${r.names[0].join(", ")||"no stars"}<br><b>${esc(pn(1))}:</b> ${r.names[1].join(", ")||"no stars"}</div>
+ ${S.done?`<div class="small"><b>${esc(pn(0))}:</b> ${r.names[0].join(", ")||"no stars"}<br><b>${esc(pn(1))}:</b> ${r.names[1].join(", ")||"no stars"}</div>`:`<div class="small muted">Bonus stars are revealed at the final count.</div>`}
  ${S.done?`<div class="banner ok">${esc(pn(r.w))} wins. ${esc(pn(1-r.w))} owes: ${esc(S.players[r.w].cons||"the consequence named at the start")}.</div>`:""}
  ${u.length?`<div class="banner ${S.done?"bad":"warn"}">${u.length} station(s) not reached: ${u.map(s=>esc(s.n)).join(", ")}.</div>`:`<div class="banner ok">${esc(CITY.copy.reached)}</div>`}
  ${S.done?`<button data-act="reopen">Reopen the game</button>`:`<button class="ink bigbtn" data-act="final">Hard stop: lock the count</button>`}</div></div>`;
