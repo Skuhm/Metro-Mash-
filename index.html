@@ -589,6 +589,9 @@ input,select,textarea{scroll-margin-top:72px}
 /* iPhones zoom the page into any field whose text is under 16px, which is what dragged the screen around while typing */
 input,select,textarea{font-size:16px!important}
 .mrow input{padding:4px 8px}
+/* three buttons now that Record is gone: Back and Play share the width, the main button gets the rest */
+.xp-nav{grid-template-columns:auto auto 1fr}
+.xp-nav button{white-space:nowrap;min-width:64px}
 
 </style>
 </head>
